@@ -18,6 +18,7 @@ import { Menu } from "~/components/Menu";
 import { UserBadge } from "~/components/UserBadge";
 import { ServicesFilters } from "~/components/ServicesFilters";
 import { LocationData } from "~/context/locationContext";
+import ReactGA from "react-ga4";
 
 const useRandomizer = (
   data: RestoBusiness[],
@@ -69,6 +70,14 @@ const App: NextPage = () => {
   const [takeout, setTakeout] = useState(false);
   const business = useRandomizer(data, livraison, takeout, change);
   const distance = useContext(LocationData);
+
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: "/app",
+      title: "App",
+    });
+  });
 
   return (
     <>

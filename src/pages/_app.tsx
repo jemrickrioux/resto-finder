@@ -5,6 +5,10 @@ import YelpContext from "~/context/context";
 
 import { api } from "~/utils/api";
 
+import ReactGA from "react-ga4";
+
+ReactGA.initialize(process.env.NEXT_PUBLIC_GA4_ID!);
+
 import "~/styles/globals.css";
 import LocationContext, { LocationData } from "~/context/locationContext";
 import { ReactNode, useContext, useEffect, useState } from "react";
