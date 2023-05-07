@@ -90,7 +90,7 @@ export const Finder = () => {
           "bold py-6 text-left font-anek text-2xl uppercase text-primary md:text-4xl"
         }
       >
-        {"Aide-moi pis j'te trouves un resto, deal?"}
+        {"Ça part!"}
       </h2>
       <Formik
         initialValues={{
@@ -164,7 +164,7 @@ export const Finder = () => {
             }`}
           >
             <ToggleInput handler={setAdvanced} value={advanced} />
-            <p>{!advanced ? "Whatever" : "Je suis capricieux"}</p>
+            <p>{"Sélectionne ça pour faire ton capricieux"}</p>
           </div>
 
           {advanced && (

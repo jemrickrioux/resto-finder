@@ -1,5 +1,10 @@
 import { YelpBusiness } from "~/server/api/routers/yelp";
-import { LinkIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/solid";
+import {
+  LinkIcon,
+  PhoneIcon,
+  MapPinIcon,
+  StarIcon,
+} from "@heroicons/react/24/solid";
 import {
   RestoBusiness,
   RestoBusinessDetails,
@@ -10,6 +15,7 @@ import {
   WineBarRounded,
   DeliveryDiningRounded,
   TakeoutDiningRounded,
+  StarBorderRounded,
 } from "@mui/icons-material";
 import { PlaceDetailsResponse } from "@googlemaps/google-maps-services-js";
 
@@ -21,6 +27,17 @@ const YelpBadge = ({ text }: { text: string }) => {
       }
     >
       {text}
+    </div>
+  );
+};
+
+const Rating = ({ rating }: { rating: number }) => {
+  const stars = [...Array(Math.floor(rating)).keys()];
+  return (
+    <div className={"flex items-center space-x-1"}>
+      {stars.map((star: number) => (
+        <StarIcon key={star} className={" h-6 w-6 text-main"} />
+      ))}
     </div>
   );
 };
@@ -67,6 +84,15 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       })
     : "https://picsum.photos/600/250";
 
+  const details = api.places.details.useQuery<RestoBusinessDetails>(
+    business.id,
+    {
+      refetchOnWindowFocus: false,
+      refetchInterval: false,
+      staleTime: Infinity,
+    }
+  );
+
   return (
     <div
       className={
@@ -104,23 +130,30 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
             >
               {business.name}
             </div>
+            <div>
+              {details.data && <Rating rating={details.data.ratings} />}
+            </div>
           </div>
-          <div className={"items center flex w-full justify-end space-x-2"}>
-            <a href={business.website}>
-              <LinkIcon
-                className={
-                  "h-8 w-8 cursor-pointer text-main hover:text-secondary"
-                }
-              ></LinkIcon>
-            </a>
-            <a href={`tel:${business.phone}`}>
-              <PhoneIcon
-                className={
-                  "h-8 w-8 cursor-pointer text-main hover:text-secondary"
-                }
-              ></PhoneIcon>
-            </a>
-          </div>
+          {details.data && (
+            <>
+              <div className={"items center flex w-full justify-end space-x-2"}>
+                <a target={"__blank__"} href={details.data.website}>
+                  <LinkIcon
+                    className={
+                      "h-8 w-8 cursor-pointer text-main hover:text-secondary"
+                    }
+                  ></LinkIcon>
+                </a>
+                <a href={`tel:${details.data.phone}`}>
+                  <PhoneIcon
+                    className={
+                      "h-8 w-8 cursor-pointer text-main hover:text-secondary"
+                    }
+                  ></PhoneIcon>
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

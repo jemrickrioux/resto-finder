@@ -3,6 +3,7 @@ import Head from "next/head";
 
 import { api } from "~/utils/api";
 import { Button } from "~/components/Button";
+import { useSession, signIn } from "next-auth/react";
 
 const Home: NextPage = () => {
   return (
@@ -24,11 +25,20 @@ const Home: NextPage = () => {
               "Parce que toi aussi t'es écouré(e) que ton/ta chum te demandes ça."
             }
           </h2>
-          <div className={"py-4"}>
+          <div className={"flex space-x-4 py-4"}>
             <Button
               text={"Laisse-moi t'aider"}
               size={"sm"}
               link={"/app"}
+            ></Button>
+            <Button
+              text={"Se connecter"}
+              size={"sm"}
+              action={() =>
+                signIn("facebook", {
+                  callbackUrl: "/app",
+                })
+              }
             ></Button>
           </div>
         </section>

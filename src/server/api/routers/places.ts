@@ -9,6 +9,7 @@ import {
 } from "@googlemaps/google-maps-services-js";
 import * as process from "process";
 import { calculateDistance } from "~/utils/distance";
+import { rsort } from "semver";
 
 const client = new Client({});
 
@@ -49,11 +50,9 @@ export const placesRouter = createTRPCRouter({
       const results: RestoBusiness[] = req.data.results.map((result) => {
         return {
           name: result.name!,
-          phone: result.formatted_phone_number!,
           address: result.vicinity!,
           types: result.types!,
           id: result.place_id!,
-          website: result.website!,
           rating: result.rating!,
           priceLevel: result.price_level!,
           distance: calculateDistance(
@@ -92,29 +91,18 @@ export const placesRouter = createTRPCRouter({
       params: {
         key: process.env.GOOGLE_PLACES_API_KEY as string,
         place_id: input,
-        fields: [
-          "place_id",
-          "serves_beer",
-          "serves_wine",
-          "takeout",
-          "delivery",
-        ],
       },
     });
     if (!req) {
       throw new Error("Could not find restaurant details");
     }
     console.log(req.data.result);
-    const parsedResult: Partial<
-      PlaceData & {
-        serves_beer: boolean;
-        serves_wine: boolean;
-      }
-    > = req.data.result;
+    const parsedResult: Partial<PlaceData> = req.data.result;
     const results: RestoBusinessDetails = {
       id: req.data.result.place_id!,
-      beer: parsedResult.serves_beer ? parsedResult.serves_beer : false,
-      wine: parsedResult.serves_wine ? parsedResult.serves_wine : false,
+      phone: req.data.result.international_phone_number!,
+      website: req.data.result.website!,
+      ratings: req.data.result.rating!,
     };
     return results;
   }),
@@ -122,17 +110,16 @@ export const placesRouter = createTRPCRouter({
 
 export type RestoBusinessDetails = {
   id: string;
-  beer: boolean;
-  wine: boolean;
+  phone: string;
+  website: string;
+  ratings: number;
 };
 export type RestoBusiness = {
   id: string;
   name: string;
-  phone: string;
   types: string[];
   address: string;
   image: null | string;
-  website: string;
   distance: number;
   rating: number;
   priceLevel: number;
