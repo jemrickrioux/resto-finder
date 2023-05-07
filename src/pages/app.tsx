@@ -76,15 +76,24 @@ const Home: NextPage = () => {
                 handler={setLivraison}
                 value={livraison}
               ></ToggleInput>
+              {livraison && (
+                <div className={"font-anek text-xl text-primary"}>
+                  Livraison
+                </div>
+              )}
             </div>
+
             <div className={"flex items-center space-x-2"}>
+              {takeout && (
+                <div className={"font-anek text-xl text-primary"}>Takeout</div>
+              )}
               <ToggleInput handler={setTakeout} value={takeout}></ToggleInput>
               <TakeoutDiningRounded
                 fontSize={"large"}
                 className={` transition ease-in-out ${
                   takeout ? "text-primary" : "text-gray-200"
                 }`}
-              ></TakeoutDiningRounded>
+              />
             </div>
           </div>
           <div className={"flex flex-col items-end"}>
@@ -97,11 +106,13 @@ const Home: NextPage = () => {
                   <div
                     onClick={() => setChange(!change)}
                     className={
-                      "flex cursor-pointer items-center space-x-2 text-primary"
+                      "group flex cursor-pointer items-center space-x-2 text-primary"
                     }
                   >
                     <ArrowPathRoundedSquareIcon
-                      className={"h-10 w-10 hover:scale-110 hover:transform"}
+                      className={
+                        "h-10 w-10 hover:transform group-hover:scale-110"
+                      }
                     />
                     <p className={"font-anek text-primary"}>Bof</p>
                   </div>
