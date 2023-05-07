@@ -48,8 +48,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     Facebook({
-      clientId: env.FACEBOOK_CLIENT_ID as string,
-      clientSecret: env.FACEBOOK_CLIENT_SECRET as string,
+      clientId: env.FACEBOOK_CLIENT_ID,
+      clientSecret: env.FACEBOOK_CLIENT_SECRET,
     }),
     /**
      * ...add more providers here.
