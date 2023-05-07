@@ -74,6 +74,7 @@ export const Finder = () => {
   );
   useEffect(() => {
     if ("geolocation" in navigator) {
+      console.log(session);
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
@@ -82,7 +83,7 @@ export const Finder = () => {
         if (doYou) {
           addAdd.mutate({
             name: "Current Location",
-            userId: session?.user.id || "1",
+            userId: session?.user.id || null,
             lat: latitude,
             lng: longitude,
           });

@@ -11,6 +11,7 @@ import { YelpData } from "~/context/context";
 import {
   ArrowPathRoundedSquareIcon,
   ArrowUturnLeftIcon,
+  MapPinIcon,
 } from "@heroicons/react/24/solid";
 import { Resto, RestoBusiness } from "~/server/api/routers/places";
 import {
@@ -25,7 +26,13 @@ type User = {
   image?: string | undefined | null;
 };
 
-const UserBadge = ({ user }: { user: User }) => {
+const UserBadge = ({
+  user,
+  addresses,
+}: {
+  user: User;
+  addresses: any[] | undefined;
+}) => {
   return (
     <div className={"group flex flex-col space-y-2"}>
       <div className={"group flex items-center space-x-2 pr-8 pt-8"}>
@@ -37,6 +44,13 @@ const UserBadge = ({ user }: { user: User }) => {
           alt={user.name?.toString() || "ok"}
           className={"h-12 w-12 rounded-full"}
         />
+      </div>
+      <div>
+        {addresses !== undefined && addresses.length > 0 ? (
+          <MapPinIcon className={"h-6 w-6 text-primary"} />
+        ) : (
+          <MapPinIcon className={"h-6 w-6 text-secondary"} />
+        )}
       </div>
     </div>
   );
@@ -97,7 +111,9 @@ const Home: NextPage = () => {
         }
       >
         <div className={"group"}>
-          {session && <UserBadge user={session.user} />}
+          {session && (
+            <UserBadge user={session.user} addresses={addresses.data} />
+          )}
           {addresses.data !== undefined && addresses.data.length > 0 && (
             <div
               className={

@@ -36,15 +36,21 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
-        userId: z.string(),
+        userId: z.string().nullable(),
         lat: z.number(),
         lng: z.number(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.userId === null) throw new Error("No user id provided");
       const address = await ctx.prisma.address.create({
         data: {
           name: input.name,
+          favoriteFor: {
+            connect: {
+              id: input.userId,
+            },
+          },
           user: {
             connect: {
               id: input.userId,
