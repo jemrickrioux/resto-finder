@@ -80,7 +80,7 @@ export const Finder = () => {
   return (
     <div
       className={
-        "mx-4 rounded-lg bg-main px-10 py-10 text-primary md:mx-0  md:w-[800px]"
+        "rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:w-[800px] md:px-10  md:py-10"
       }
     >
       <h2
