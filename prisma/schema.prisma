@@ -47,12 +47,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
 
-  image     String?
-  accounts  Account[]
-  sessions  Session[]
-  addresses Address[] @relation(name: "Address_owned")
-  favorite  Address?  @relation(name: "Address_favorite")
-  actions   Action[]
+  image             String?
+  accounts          Account[]
+  sessions          Session[]
+  addresses         Address[] @relation(name: "Address_owned")
+  favorite          Address?  @relation(name: "Address_favorite", fields: [favoriteAddressId], references: [id])
+  favoriteAddressId String?   @unique
+  actions           Action[]
 }
 
 enum ActionType {
@@ -71,6 +72,7 @@ model Action {
   userId    String?
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
+
   @@unique([placeId, userId, type])
 }
 
@@ -103,8 +105,7 @@ model Address {
   lat         Float
   lng         Float
   name        String
-  favoriteFor User?   @relation(name: "Address_favorite", fields: [userId], references: [id])
+  favoriteFor User?   @relation(name: "Address_favorite")
   user        User?   @relation(name: "Address_owned", fields: [ownedId], references: [id])
-  userId      String? @unique @map("userId_unique")
-  ownedId     String? @unique @map("ownedId_unique")
+  ownedId     String?
 }

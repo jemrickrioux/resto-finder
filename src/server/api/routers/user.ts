@@ -9,7 +9,6 @@ import type { Address } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
   addresses: publicProcedure
-    .input(z.string().optional())
     .output(
       z.array(
         z.object({
@@ -20,40 +19,38 @@ export const userRouter = createTRPCRouter({
         })
       )
     )
-    .query(async ({ ctx, input }) => {
-      if (input !== undefined) {
-        const req: Address[] = await ctx.prisma.address.findMany({
-          where: {
-            userId: input,
-          },
-        });
-        return req;
-      } else {
+    .query(async ({ ctx }) => {
+      if (ctx.session === null) {
         throw new Error("No user id provided");
       }
+      const req: Address[] = await ctx.prisma.address.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+      return req;
     }),
   addAddress: publicProcedure
     .input(
       z.object({
         name: z.string(),
-        userId: z.string().nullable(),
         lat: z.number(),
         lng: z.number(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (input.userId === null) throw new Error("No user id provided");
+      if (ctx.session === null) throw new Error("No user id provided");
       const address = await ctx.prisma.address.create({
         data: {
           name: input.name,
           favoriteFor: {
             connect: {
-              id: input.userId,
+              id: ctx.session.user.id,
             },
           },
           user: {
             connect: {
-              id: input.userId,
+              id: ctx.session.user.id,
             },
           },
           lat: input.lat,
@@ -217,5 +214,37 @@ export const userRouter = createTRPCRouter({
         placeId: input,
       },
     });
+  }),
+  getFavoriteAddress: publicProcedure.query(async ({ ctx, input }) => {
+    if (ctx.session === null) {
+      throw new Error("No user id provided");
+    }
+
+    const user = await ctx.prisma.user.findFirst({
+      where: {
+        id: ctx.session.user.id,
+      },
+      include: {
+        favorite: true,
+      },
+    });
+    if (!user) throw new Error("User not found");
+    return user.favorite;
+  }),
+  getLiked: publicProcedure.query(async ({ ctx, input }) => {
+    if (ctx.session === null) {
+      throw new Error("No user id provided");
+    }
+
+    const liked = await ctx.prisma.action.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        type: "LIKE",
+      },
+      include: {
+        place: true,
+      },
+    });
+    return liked.map((like) => like.place);
   }),
 });

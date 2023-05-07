@@ -1,7 +1,15 @@
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "~/components/Button";
 import { FieldGroup, Label } from "~/components/Finder";
+import { LocationData } from "~/context/locationContext";
+import { api } from "~/utils/api";
 
 export function Modal({
   isOpen,
@@ -12,9 +20,23 @@ export function Modal({
 }) {
   // The open/closed state lives outside of the Dialog and is managed by you
   const [name, setName] = useState("");
+  const utils = api.useContext();
+  const distance = useContext(LocationData);
+  const save = api.user.addAddress.useMutation({
+    onSuccess: async () => {
+      await utils.invalidate();
+    },
+  });
 
-  function handleDeactivate() {
+  async function handleSubmit() {
     // ...
+    if (!name || !distance.data.coords.lat || !distance.data.coords.lng)
+      return null;
+    await save.mutateAsync({
+      name,
+      lat: distance.data.coords.lat,
+      lng: distance.data.coords.lng,
+    });
   }
 
   return (
@@ -49,7 +71,7 @@ export function Modal({
               Votre position actuelle sera sauvegardée comme addresse favorite.
             </Dialog.Description>
             <FieldGroup>
-              <Label htmlFor={"name"}>Nom de l'adresse</Label>
+              <Label htmlFor={"name"}>{"Nom de l'adresse"}</Label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -73,7 +95,7 @@ export function Modal({
               ></Button>
               <Button
                 size={"xs"}
-                action={handleDeactivate}
+                action={handleSubmit}
                 text={"Sauvegarder"}
               ></Button>
             </div>

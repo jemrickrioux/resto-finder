@@ -2,72 +2,30 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { api } from "~/utils/api";
-import { Button } from "~/components/Button";
 import { Finder } from "~/components/Finder";
-import React, { useContext, useState } from "react";
+import { SkeletonFinder } from "~/components/SkeletonFinder";
+import React, { useContext, useEffect, useState } from "react";
 import { MainBusinessCard } from "~/components/MainBusinessCard";
-import { ToggleInput } from "~/components/form/ToggleInput";
 import { YelpData } from "~/context/context";
 import {
   ArrowPathRoundedSquareIcon,
-  ArrowUturnLeftIcon,
   MapPinIcon,
 } from "@heroicons/react/24/solid";
-import { Resto, RestoBusiness } from "~/server/api/routers/places";
-import {
-  DeliveryDiningRounded,
-  TakeoutDiningRounded,
-} from "@mui/icons-material";
-import { useSession } from "next-auth/react";
+import { RestoBusiness } from "~/server/api/routers/places";
+import { signIn, useSession } from "next-auth/react";
 import { Modal } from "~/components/Modal";
+import { Menu } from "~/components/Menu";
+import { UserBadge } from "~/components/UserBadge";
+import { ServicesFilters } from "~/components/ServicesFilters";
+import { LocationData } from "~/context/locationContext";
 
-type User = {
-  name?: string | undefined | null;
-  email?: string | undefined | null;
-  image?: string | undefined | null;
-};
-
-const UserBadge = ({
-  user,
-  addresses,
-}: {
-  user: User;
-  addresses: any[] | undefined;
-}) => {
-  return (
-    <div className={"group flex flex-col space-y-2"}>
-      <div className={"group flex items-center space-x-2 pr-8 pt-8"}>
-        <div className={"font-anek text-2xl font-bold text-primary"}>
-          {user.name}
-        </div>
-        <img
-          src={user.image ? user.image : "https://www.gravatar.com/avatar/0"}
-          alt={user.name?.toString() || "ok"}
-          className={"h-12 w-12 rounded-full"}
-        />
-      </div>
-      <div>
-        {addresses !== undefined && addresses.length > 0 ? (
-          <MapPinIcon className={"h-6 w-6 text-primary"} />
-        ) : (
-          <MapPinIcon className={"h-6 w-6 text-secondary"} />
-        )}
-      </div>
-    </div>
-  );
-};
-
-const Home: NextPage = () => {
-  const { data: session } = useSession();
-  const addPlace = api.places.addPlace.useMutation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const addresses = api.user.addresses.useQuery(session?.user.id);
-  //const restaurants = api.yelp.restaurant.useQuery();
-  const [change, setChange] = useState(false);
-  const { setData, data } = useContext(YelpData);
-  const [livraison, setLivraison] = useState(false);
-  const [takeout, setTakeout] = useState(false);
-  const business = React.useMemo(() => {
+const useRandomizer = (
+  data: RestoBusiness[],
+  livraison: boolean,
+  takeout: boolean,
+  change: boolean
+) => {
+  return React.useMemo(() => {
     if (data.length > 0) {
       if (livraison && takeout) {
         const filtered = data.filter(
@@ -100,6 +58,18 @@ const Home: NextPage = () => {
       return null;
     }
   }, [data, change, livraison, takeout]);
+};
+
+const App: NextPage = () => {
+  const { data: session } = useSession();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [change, setChange] = useState(false);
+  const { setData, data } = useContext(YelpData);
+  const [livraison, setLivraison] = useState(false);
+  const [takeout, setTakeout] = useState(false);
+  const business = useRandomizer(data, livraison, takeout, change);
+  const distance = useContext(LocationData);
+
   return (
     <>
       <Head>
@@ -113,60 +83,60 @@ const Home: NextPage = () => {
         }
       >
         <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}></Modal>
-        <div className={"group"}>
-          {session && (
-            <UserBadge user={session.user} addresses={addresses.data} />
-          )}
-          {addresses.data !== undefined && addresses.data.length > 0 && (
-            <div
-              className={
-                "invisible flex flex-col items-center space-y-4 group-hover:visible"
+
+        <div className={"flex w-screen justify-between"}>
+          <div className={"group flex items-center space-x-2 pl-8 pt-8"}>
+            <MapPinIcon
+              className={`h-8 w-8 ${
+                distance.data.error ? "text-secondary" : "text-primary"
               }
+              ${distance.data.loading ? "animate-pulse" : ""}`}
+            />
+            <div
+              onClick={() => setIsModalOpen(true)}
+              className={`${
+                distance.data.name
+                  ? "text-primary"
+                  : distance.data.error
+                  ? " text-secondary"
+                  : "cursor-pointer text-main underline hover:text-primary"
+              }`}
             >
-              {addresses.data.map((address: { name: string }) => {
-                return (
-                  <div key={address.name}>
-                    <div>{address.name}</div>
-                  </div>
-                );
-              })}
+              {distance.data.name
+                ? distance.data.name
+                : session
+                ? "Enregistrer le lieu"
+                : distance.data.error
+                ? distance.data.error
+                : ""}
             </div>
-          )}
+          </div>
+          <Menu disabled={!session}>
+            <div className={"group"}>
+              {session ? (
+                <UserBadge user={session.user} />
+              ) : (
+                <p
+                  className={
+                    "p-4 font-anek text-xl hover:text-primary hover:underline"
+                  }
+                  onClick={() => void signIn("facebook")}
+                >
+                  Se connecter
+                </p>
+              )}
+            </div>
+          </Menu>
         </div>
+
         <div className=" flex min-h-screen w-screen flex-col items-center justify-center">
           <section className={"flex flex-col items-center text-center"}>
-            <div className={"flex w-screen justify-between px-4 md:w-full "}>
-              <div className={"flex w-max items-center space-x-2"}>
-                <DeliveryDiningRounded
-                  fontSize={"large"}
-                  className={livraison ? "text-primary" : "text-gray-200"}
-                ></DeliveryDiningRounded>
-                <ToggleInput
-                  handler={setLivraison}
-                  value={livraison}
-                ></ToggleInput>
-                {livraison && (
-                  <div className={"font-anek text-xl text-primary"}>
-                    Livraison
-                  </div>
-                )}
-              </div>
-
-              <div className={"flex items-center space-x-2"}>
-                {takeout && (
-                  <div className={"font-anek text-xl text-primary"}>
-                    Takeout
-                  </div>
-                )}
-                <ToggleInput handler={setTakeout} value={takeout}></ToggleInput>
-                <TakeoutDiningRounded
-                  fontSize={"large"}
-                  className={` transition ease-in-out ${
-                    takeout ? "text-primary" : "text-gray-200"
-                  }`}
-                />
-              </div>
-            </div>
+            <ServicesFilters
+              livraison={livraison}
+              handler={setLivraison}
+              takeout={takeout}
+              handler1={setTakeout}
+            />
             <div className={"flex flex-col items-end"}>
               {business && (
                 <>
@@ -202,7 +172,13 @@ const Home: NextPage = () => {
                 </>
               )}
             </div>
-            <div>{!business && <Finder openModal={setIsModalOpen} />}</div>
+            <div>
+              {!distance.data.loading && !business ? (
+                <Finder openModal={setIsModalOpen} />
+              ) : (
+                !business && <SkeletonFinder />
+              )}
+            </div>
           </section>
         </div>
       </main>
@@ -210,4 +186,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default App;
