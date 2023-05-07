@@ -4,8 +4,18 @@ import Head from "next/head";
 import { api } from "~/utils/api";
 import { Button } from "~/components/Button";
 import { useSession, signIn } from "next-auth/react";
+import { useEffect } from "react";
+import ReactGA from "react-ga4";
 
 const Home: NextPage = () => {
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: "/",
+      title: "Landing Page",
+    });
+  });
+
   return (
     <>
       <Head>
