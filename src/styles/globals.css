@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Brandon";
+    font-weight: 900;
+    src: url("/fonts/Brandon.otf") format("opentype");
+}
+@font-face {
+    font-family: "BrandonLight";
+    font-weight: 100;
+    src: url("/fonts/BrandonLight.otf") format("opentype");
+}
+@font-face {
+    font-family: "Anek";
+    src: url("/fonts/Anek.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Source Code Pro";
+    src: url("/fonts/SourceCodePro.ttf") format("truetype");
+}
+

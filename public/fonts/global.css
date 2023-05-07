@@ -1,0 +1,20 @@
+@font-face {
+    font-family: "Brandon";
+    font-weight: 900;
+    src: url("Brandon.otf") format("opentype");
+}
+@font-face {
+    font-family: "BrandonLight";
+    font-weight: 100;
+    src: url("BrandonLight.otf") format("opentype");
+}
+@font-face {
+    font-family: "Anek";
+    src: url("Anek.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Source Code Pro";
+    src: url("SourceCodePro.ttf") format("truetype");
+}
+
