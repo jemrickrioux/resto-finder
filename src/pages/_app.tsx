@@ -13,6 +13,15 @@ import "~/styles/globals.css";
 import LocationContext, { LocationData } from "~/context/locationContext";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { calculateDistance } from "~/utils/distance";
+import React from "react";
+import Bugsnag from "@bugsnag/js";
+import BugsnagPluginReact from "@bugsnag/plugin-react";
+
+Bugsnag.start({
+  apiKey: process.env.NEXT_PUBLIC_BUGSNAG_API_KEY!,
+  plugins: [new BugsnagPluginReact()],
+});
+const ErrorBoundary = Bugsnag.getPlugin("react")!.createErrorBoundary(React);
 
 const useGeoLocation = () => {
   const [latitude, setLatitude] = useState(0);
@@ -82,15 +91,17 @@ const MyApp: AppType<{ session: Session | null }> = ({
   pageProps: { session, ...pageProps },
 }) => {
   return (
-    <SessionProvider session={session}>
-      <LocationContext>
-        <YelpContext>
-          <Global>
-            <Component {...pageProps} />
-          </Global>
-        </YelpContext>
-      </LocationContext>
-    </SessionProvider>
+    <ErrorBoundary>
+      <SessionProvider session={session}>
+        <LocationContext>
+          <YelpContext>
+            <Global>
+              <Component {...pageProps} />
+            </Global>
+          </YelpContext>
+        </LocationContext>
+      </SessionProvider>
+    </ErrorBoundary>
   );
 };
 

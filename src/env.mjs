@@ -36,6 +36,8 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
     NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: z.string().min(1),
     NEXT_PUBLIC_GA4_ID: z.string().min(1),
+    NEXT_PUBLIC_BUGSNAG_API_KEY: z.string().min(1),
+
   },
 
   /**
@@ -53,5 +55,7 @@ export const env = createEnv({
     NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
     YELP_API_KEY: process.env.YELP_API_KEY,
     NEXT_PUBLIC_GA4_ID: process.env.NEXT_PUBLIC_GA4_ID,
+    NEXT_PUBLIC_BUGSNAG_API_KEY: process.env.NEXT_PUBLIC_BUGSNAG_API_KEY,
+
   },
 });
