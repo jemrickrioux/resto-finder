@@ -13,6 +13,14 @@ export default {
     "hover:bg-primary",
     "hover:bg-black",
     "border-red-500",
+    "text-sm",
+    "text-xs",
+    "text-md",
+    "text-lg",
+    "text-xl",
+    "text-2xl",
+    "text-3xl",
+    "text-4xl",
   ],
   theme: {
     extend: {

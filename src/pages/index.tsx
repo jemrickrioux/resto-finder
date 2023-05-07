@@ -15,9 +15,9 @@ const Home: NextPage = () => {
       </Head>
       <main className="bg-hero flex min-h-screen flex-col items-center justify-center bg-accent bg-hero-i-like-food ">
         <section
-          className={"mx-4 flex flex-col items-start space-y-4 text-left"}
+          className={"mx-4 flex flex-col items-start space-y-4  text-left"}
         >
-          <h1 className="-mb-4 font-anek text-4xl font-bold uppercase text-main text-secondary md:text-8xl">
+          <h1 className="-mb-4 font-anek text-4xl font-bold uppercase  text-secondary md:text-8xl">
             {"C'est quoi qu'on mange?"}
           </h1>
           <h2 className={"font-anek text-xl text-white md:text-4xl"}>
@@ -25,15 +25,15 @@ const Home: NextPage = () => {
               "Parce que toi aussi t'es écouré(e) que ton/ta chum te demandes ça."
             }
           </h2>
-          <div className={"flex space-x-4 py-4"}>
+          <div className={"flex space-x-4"}>
             <Button
-              text={"Laisse-moi t'aider"}
-              size={"sm"}
+              text={"Continuer en tant qu'invité"}
+              size={"xs"}
               link={"/app"}
             ></Button>
             <Button
-              text={"Se connecter"}
-              size={"sm"}
+              text={"Connexion"}
+              size={"xs"}
               action={() =>
                 signIn("facebook", {
                   callbackUrl: "/app",

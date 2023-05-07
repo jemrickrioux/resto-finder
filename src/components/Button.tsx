@@ -10,16 +10,16 @@ export const Button = ({
 }: {
   text: string;
   link?: string;
-  size: "sm" | "md" | "xl";
+  size: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
   action?: () => void | Promise<any>;
   submit?: boolean;
 }) => {
-  const styles = `group text-accent w-max cursor-pointer rounded-lg border-2 border-primary bg-primary px-4 py-2 text-center hover:scale-105 transition hover:shadow-xl ease-in-out font-brandon uppercase md:text-${size} flex items-center`;
+  const styles = `group text-accent w-max cursor-pointer rounded-lg border-2 border-primary bg-primary md:px-4 px-2 md:py-2 py-1 text-center hover:scale-105 transition hover:shadow-xl ease-in-out font-brandon uppercase md:text-${size} flex items-center`;
   if (link) {
     return (
       <Link href={link} passHref>
         <button type={"button"} onClick={action} className={styles}>
-          <span>{text}</span>
+          <span className={`text-${size}`}>{text}</span>
           <ArrowRightIcon className=" bold ml-2 h-6 w-6 transition ease-in-out hover:transform group-hover:translate-x-1" />
         </button>
       </Link>
