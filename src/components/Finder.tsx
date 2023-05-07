@@ -32,6 +32,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { DistanceSelect } from "~/components/form/DistanceSelect";
 import { KeywordSelect } from "~/components/form/KeywordSelect";
 import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
+import { ToggleInput } from "~/components/form/ToggleInput";
 
 const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
@@ -63,6 +64,7 @@ const GooglePlacesAutoComplete = (props: any) => {
 
 export const Finder = () => {
   const get = api.places.restaurant.useMutation();
+  const [advanced, setAdvanced] = React.useState(false);
   const { data, setData } = useContext(YelpData);
   const [location, setLocation] = React.useState(
     {} as MyFormValues["coordinates"]
@@ -156,45 +158,61 @@ export const Finder = () => {
               <GooglePlacesAutoComplete />
             </FieldGroup>
           )}
+          <div
+            className={`flex space-x-2 ${
+              !advanced ? "text-gray-200" : "text-primary"
+            }`}
+          >
+            <ToggleInput handler={setAdvanced} value={advanced} />
+            <p>{!advanced ? "Whatever" : "Je suis capricieux"}</p>
+          </div>
 
-          <FieldGroup>
-            <Label htmlFor="priceLevel">{"Tu met combien sur la table?"}</Label>
-            <PriceLevelSelect
-              choices={[
-                { value: 1, label: "Pas gros | J'suis cheap en est!" },
-                { value: 2, label: "Un peu | Je suis cheap mais pas trop" },
-                { value: 3, label: "Correct | Je suis capable" },
-                {
-                  value: 4,
-                  label: "You decide | Go hard or go home!... wait..",
-                },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup>
-            <Label htmlFor="distance">
-              {"Quel rayon on utilises pour la recherche?"}
-            </Label>
-            <DistanceSelect
-              choices={[
-                { value: 5000, label: "5km | Close stuff please" },
-                { value: 10000, label: "10km | Allez!" },
-                { value: 15000, label: "15km | At this point." },
-                { value: 25000, label: "25km | Je suis fucking désespéré" },
-              ]}
-            />
-          </FieldGroup>
-          <FieldGroup>
-            <Label htmlFor="distance">{"C'est quoi ton indispensable?"}</Label>
-            <KeywordSelect
-              choices={[
-                { value: "bière", label: "Je veux de la broue" },
-                { value: "vin", label: "Je veux du vin" },
-                { value: "fast food", label: "D'la junk svp" },
-                { value: "poulet", label: "Poula!" },
-              ]}
-            />
-          </FieldGroup>
+          {advanced && (
+            <>
+              <FieldGroup>
+                <Label htmlFor="priceLevel">
+                  {"Tu met combien sur la table?"}
+                </Label>
+                <PriceLevelSelect
+                  choices={[
+                    { value: 1, label: "Pas gros | J'suis cheap en est!" },
+                    { value: 2, label: "Un peu | Je suis cheap mais pas trop" },
+                    { value: 3, label: "Correct | Je suis capable" },
+                    {
+                      value: 4,
+                      label: "You decide | Go hard or go home!... wait..",
+                    },
+                  ]}
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor="distance">
+                  {"Quel rayon on utilises pour la recherche?"}
+                </Label>
+                <DistanceSelect
+                  choices={[
+                    { value: 5000, label: "5km | Close stuff please" },
+                    { value: 10000, label: "10km | Allez!" },
+                    { value: 15000, label: "15km | At this point." },
+                    { value: 25000, label: "25km | Je suis fucking désespéré" },
+                  ]}
+                />
+              </FieldGroup>
+              <FieldGroup>
+                <Label htmlFor="distance">
+                  {"C'est quoi ton indispensable?"}
+                </Label>
+                <KeywordSelect
+                  choices={[
+                    { value: "bière", label: "Je veux de la broue" },
+                    { value: "vin", label: "Je veux du vin" },
+                    { value: "fast food", label: "D'la junk svp" },
+                    { value: "poulet", label: "Poula!" },
+                  ]}
+                />
+              </FieldGroup>
+            </>
+          )}
           <div className={"py-8"}>
             <Button text={"Go"} size={"sm"} submit />
           </div>
