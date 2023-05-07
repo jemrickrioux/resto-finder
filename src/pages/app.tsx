@@ -95,7 +95,7 @@ const Home: NextPage = () => {
         {session && <UserBadge user={session.user} />}
         <div className=" flex min-h-screen w-screen flex-col items-center justify-center">
           <section className={"flex flex-col items-center text-center"}>
-            <div className={"flex w-screen justify-between md:w-full "}>
+            <div className={"flex w-screen justify-between px-4 md:w-full "}>
               <div className={"flex w-max items-center space-x-2"}>
                 <DeliveryDiningRounded
                   fontSize={"large"}
