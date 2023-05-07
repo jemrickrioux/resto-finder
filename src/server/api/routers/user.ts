@@ -62,4 +62,160 @@ export const userRouter = createTRPCRouter({
       });
       return address;
     }),
+  likePlace: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session === null) {
+        throw new Error("No user id provided");
+      }
+      const likeExists = await ctx.prisma.action.findUnique({
+        where: {
+          placeId_userId_type: {
+            placeId: input,
+            userId: ctx.session.user.id,
+            type: "LIKE",
+          },
+        },
+      });
+      const dislikeExists = await ctx.prisma.action.findUnique({
+        where: {
+          placeId_userId_type: {
+            placeId: input,
+            userId: ctx.session.user.id,
+            type: "DISLIKE",
+          },
+        },
+      });
+      if (likeExists) {
+        if (!dislikeExists) {
+          await ctx.prisma.action.create({
+            data: {
+              place: {
+                connect: {
+                  id: input,
+                },
+              },
+              type: "DISLIKE",
+              user: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          });
+        }
+        return await ctx.prisma.action.delete({
+          where: {
+            id: likeExists.id,
+          },
+        });
+      } else {
+        if (dislikeExists) {
+          await ctx.prisma.action.delete({
+            where: {
+              id: dislikeExists.id,
+            },
+          });
+        }
+        return await ctx.prisma.action.create({
+          data: {
+            place: {
+              connect: {
+                id: input,
+              },
+            },
+            type: "LIKE",
+            user: {
+              connect: {
+                id: ctx.session.user.id,
+              },
+            },
+          },
+        });
+      }
+    }),
+  dislikePlace: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session === null) {
+        throw new Error("No user id provided");
+      }
+      const likeExists = await ctx.prisma.action.findUnique({
+        where: {
+          placeId_userId_type: {
+            placeId: input,
+            userId: ctx.session.user.id,
+            type: "LIKE",
+          },
+        },
+      });
+      const dislikeExists = await ctx.prisma.action.findUnique({
+        where: {
+          placeId_userId_type: {
+            placeId: input,
+            userId: ctx.session.user.id,
+            type: "DISLIKE",
+          },
+        },
+      });
+      if (dislikeExists) {
+        if (!likeExists) {
+          await ctx.prisma.action.create({
+            data: {
+              place: {
+                connect: {
+                  id: input,
+                },
+              },
+              type: "LIKE",
+              user: {
+                connect: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          });
+        }
+        return await ctx.prisma.action.delete({
+          where: {
+            id: dislikeExists.id,
+          },
+        });
+      } else {
+        if (likeExists) {
+          await ctx.prisma.action.delete({
+            where: {
+              id: likeExists.id,
+            },
+          });
+        }
+        return await ctx.prisma.action.create({
+          data: {
+            place: {
+              connect: {
+                id: input,
+              },
+            },
+            type: "DISLIKE",
+            user: {
+              connect: {
+                id: ctx.session.user.id,
+              },
+            },
+          },
+        });
+      }
+    }),
+  actions: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    if (ctx.session === null) {
+      throw new Error("No user id provided");
+    }
+
+    return await ctx.prisma.action.findMany({
+      where: {
+        userId: ctx.session.user.id,
+        placeId: input,
+      },
+    });
+  }),
 });

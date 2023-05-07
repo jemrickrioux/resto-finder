@@ -19,6 +19,7 @@ import {
   TakeoutDiningRounded,
 } from "@mui/icons-material";
 import { useSession } from "next-auth/react";
+import { Modal } from "~/components/Modal";
 
 type User = {
   name?: string | undefined | null;
@@ -59,6 +60,7 @@ const UserBadge = ({
 const Home: NextPage = () => {
   const { data: session } = useSession();
   const addPlace = api.places.addPlace.useMutation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const addresses = api.user.addresses.useQuery(session?.user.id);
   //const restaurants = api.yelp.restaurant.useQuery();
   const [change, setChange] = useState(false);
@@ -110,6 +112,7 @@ const Home: NextPage = () => {
           "bg-hero flex w-screen flex-col items-end bg-accent bg-hero-i-like-food"
         }
       >
+        <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}></Modal>
         <div className={"group"}>
           {session && (
             <UserBadge user={session.user} addresses={addresses.data} />
@@ -199,7 +202,7 @@ const Home: NextPage = () => {
                 </>
               )}
             </div>
-            <div>{!business && <Finder />}</div>
+            <div>{!business && <Finder openModal={setIsModalOpen} />}</div>
           </section>
         </div>
       </main>

@@ -4,6 +4,8 @@ import {
   PhoneIcon,
   MapPinIcon,
   StarIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
 } from "@heroicons/react/24/solid";
 import {
   RestoBusiness,
@@ -18,7 +20,7 @@ import {
   StarBorderRounded,
 } from "@mui/icons-material";
 import { PlaceDetailsResponse } from "@googlemaps/google-maps-services-js";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 const YelpBadge = ({ text }: { text: string }) => {
   return (
@@ -77,7 +79,28 @@ const BadgeList = ({ business }: { business: RestoBusiness }) => {
 };
 
 export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
+  const utils = api.useContext();
+
   const addPlace = api.places.addPlace.useMutation();
+  const like = api.user.likePlace.useMutation({
+    onSuccess: async () => {
+      await utils.invalidate(undefined);
+    },
+  });
+  const dislike = api.user.dislikePlace.useMutation({
+    onSuccess: async () => {
+      await utils.invalidate(undefined);
+    },
+  });
+  const actions = api.user.actions.useQuery(business.id);
+  const status = React.useMemo(() => {
+    const data = actions.data;
+    if (!data) return { liked: false, disliked: false };
+    return {
+      liked: data.map((d) => d.type).includes("LIKE"),
+      disliked: data.map((d) => d.type).includes("DISLIKE"),
+    };
+  }, [actions.data, business]);
   const photo = business.image
     ? api.places.photo.useQuery(business.image, {
         refetchOnWindowFocus: false,
@@ -122,6 +145,20 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       />
       <div className={"absolute right-4 top-4 z-10"}>
         <Badge text={business.distance.toFixed(2) + "km"} Icon={MapPinIcon} />
+        <div className={"my-2 flex space-x-2"}>
+          <HandThumbUpIcon
+            className={`h-8 w-8 cursor-pointer ${
+              status.liked ? "text-green-400" : "text-main"
+            } hover:text-green-400`}
+            onClick={() => like.mutate(business.id)}
+          />
+          <HandThumbDownIcon
+            className={`h-8 w-8 ${
+              status.disliked ? "text-secondary" : "text-main"
+            } cursor-pointer  hover:text-secondary`}
+            onClick={() => dislike.mutate(business.id)}
+          />
+        </div>
       </div>
       <div
         className={
@@ -149,7 +186,7 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
             </div>
           </div>
           {details.data && (
-            <>
+            <div className={"flex flex-col"}>
               <div className={"items center flex w-full justify-end space-x-2"}>
                 <a target={"__blank__"} href={details.data.website}>
                   <LinkIcon
@@ -166,7 +203,7 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
                   ></PhoneIcon>
                 </a>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

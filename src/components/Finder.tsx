@@ -2,7 +2,13 @@ import * as React from "react";
 import { Formik, Field, Form, FormikHelpers, useFormikContext } from "formik";
 import { Button } from "~/components/Button";
 import { api } from "~/utils/api";
-import { Fragment, useContext, useEffect } from "react";
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useContext,
+  useEffect,
+} from "react";
 import * as Yup from "yup";
 
 import { YelpData } from "~/context/context";
@@ -39,11 +45,11 @@ const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
 };
 
-const Label = (props: any) => {
+export const Label = (props: any) => {
   return <label className={"text-md text-primary md:text-xl"} {...props} />;
 };
 
-const FieldGroup = (props: any) => {
+export const FieldGroup = (props: any) => {
   return (
     <div className={"mb-4 flex flex-col items-start space-y-2"} {...props} />
   );
@@ -63,7 +69,11 @@ const GooglePlacesAutoComplete = (props: any) => {
   );
 };
 
-export const Finder = () => {
+export const Finder = ({
+  openModal,
+}: {
+  openModal: Dispatch<SetStateAction<boolean>>;
+}) => {
   const { data: session } = useSession();
   const get = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
@@ -74,21 +84,11 @@ export const Finder = () => {
   );
   useEffect(() => {
     if ("geolocation" in navigator) {
-      console.log(session);
       // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
         setLocation({ latitude, longitude });
-        const doYou = confirm("Veux-tu sauvegarder ton addresse?");
-        if (doYou) {
-          addAdd.mutate({
-            name: "Current Location",
-            userId: session?.user.id || null,
-            lat: latitude,
-            lng: longitude,
-          });
-        }
-        console.log(coords);
+        openModal(true);
       });
     }
   }, []);
@@ -143,7 +143,6 @@ export const Finder = () => {
           }: FormikHelpers<MyFormValues>
         ) => {
           setSubmitting(true);
-          console.log(values);
           const payload =
             location.latitude > 0
               ? {

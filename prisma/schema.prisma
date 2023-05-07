@@ -65,13 +65,13 @@ enum ActionType {
 
 model Action {
   id        String     @id @default(cuid())
-  name      String
   type      ActionType
   placeId   String
   place     Place      @relation(fields: [placeId], references: [id])
   userId    String?
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
+  @@unique([placeId, userId, type])
 }
 
 model VerificationToken {
