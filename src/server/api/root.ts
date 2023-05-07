@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { yelpRouter } from "~/server/api/routers/yelp";
 import { placesRouter } from "~/server/api/routers/places";
+import { userRouter } from "~/server/api/routers/user";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +11,7 @@ import { placesRouter } from "~/server/api/routers/places";
 export const appRouter = createTRPCRouter({
   yelp: yelpRouter,
   places: placesRouter,
+  user: userRouter,
 });
 
 // export type definition of API

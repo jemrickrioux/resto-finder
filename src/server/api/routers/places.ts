@@ -1,15 +1,18 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { Blob } from "next/dist/compiled/@edge-runtime/primitives/blob";
+import type { Place as DBPlace } from "@prisma/client";
 
 import {
   Client,
+  Place,
   PlaceData,
   PlacePhotoResponse,
 } from "@googlemaps/google-maps-services-js";
 import * as process from "process";
 import { calculateDistance } from "~/utils/distance";
 import { rsort } from "semver";
+import { TRPCContextProps } from "@trpc/react-query/shared";
 
 const client = new Client({});
 
@@ -55,6 +58,8 @@ export const placesRouter = createTRPCRouter({
           id: result.place_id!,
           rating: result.rating!,
           priceLevel: result.price_level!,
+          lat: result.geometry!.location.lat,
+          lng: result.geometry!.location.lng,
           distance: calculateDistance(
             { lat: input.latitude!, lng: input.longitude! },
             {
@@ -87,6 +92,12 @@ export const placesRouter = createTRPCRouter({
     }
   }),
   details: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const existing = await ctx.prisma.place.findUnique({
+      where: {
+        googlePlaceId: input,
+      },
+    });
+    console.log("existing", existing);
     const req = await client.placeDetails({
       params: {
         key: process.env.GOOGLE_PLACES_API_KEY as string,
@@ -96,7 +107,6 @@ export const placesRouter = createTRPCRouter({
     if (!req) {
       throw new Error("Could not find restaurant details");
     }
-    console.log(req.data.result);
     const parsedResult: Partial<PlaceData> = req.data.result;
     const results: RestoBusinessDetails = {
       id: req.data.result.place_id!,
@@ -106,6 +116,49 @@ export const placesRouter = createTRPCRouter({
     };
     return results;
   }),
+  addPlace: publicProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        address: z.string(),
+        types: z.array(z.string()),
+        id: z.string(),
+        rating: z.number(),
+        priceLevel: z.number(),
+        lat: z.number(),
+        lng: z.number(),
+        phone: z.string(),
+        website: z.string(),
+        image: z.string().nullable(),
+        googlePlaceId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const exists = await ctx.prisma.place.findUnique({
+        where: {
+          googlePlaceId: input.googlePlaceId,
+        },
+      });
+      const place: DBPlace = !exists
+        ? await ctx.prisma.place.create({
+            data: {
+              name: input.name,
+              address: input.address,
+              types: JSON.stringify(input.types),
+              lat: input.lat,
+              lng: input.lng,
+              id: input.id,
+              ratings: input.rating,
+              priceLevel: input.priceLevel,
+              phone: input.phone,
+              website: input.website,
+              image: input.image,
+              googlePlaceId: input.googlePlaceId,
+            },
+          })
+        : { ...exists };
+      return place;
+    }),
 });
 
 export type RestoBusinessDetails = {
@@ -123,4 +176,8 @@ export type RestoBusiness = {
   distance: number;
   rating: number;
   priceLevel: number;
+  lat: number;
+  lng: number;
 };
+
+export type Resto = RestoBusiness & RestoBusinessDetails;

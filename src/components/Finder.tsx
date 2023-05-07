@@ -2,7 +2,13 @@ import * as React from "react";
 import { Formik, Field, Form, FormikHelpers, useFormikContext } from "formik";
 import { Button } from "~/components/Button";
 import { api } from "~/utils/api";
-import { Fragment, useContext, useEffect } from "react";
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useContext,
+  useEffect,
+} from "react";
 import * as Yup from "yup";
 
 import { YelpData } from "~/context/context";
@@ -33,16 +39,19 @@ import { DistanceSelect } from "~/components/form/DistanceSelect";
 import { KeywordSelect } from "~/components/form/KeywordSelect";
 import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
 import { ToggleInput } from "~/components/form/ToggleInput";
+import { useSession } from "next-auth/react";
+import { Address } from "@prisma/client";
+import { LocationData } from "~/context/locationContext";
 
 const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
 };
 
-const Label = (props: any) => {
+export const Label = (props: any) => {
   return <label className={"text-md text-primary md:text-xl"} {...props} />;
 };
 
-const FieldGroup = (props: any) => {
+export const FieldGroup = (props: any) => {
   return (
     <div className={"mb-4 flex flex-col items-start space-y-2"} {...props} />
   );
@@ -50,35 +59,42 @@ const FieldGroup = (props: any) => {
 
 const GooglePlacesAutoComplete = (props: any) => {
   const { values, setFieldValue } = useFormikContext();
+  const { setCoordinates } = useContext(LocationData);
 
   return (
     <Autocomplete
       className={"bg-accent"}
       apiKey={env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
-      onPlaceSelected={(place: { formatted_address: string }) => {
-        setFieldValue("location", place.formatted_address);
+      onPlaceSelected={(place: {
+        geometry: {
+          location: { lat: () => number; lng: () => number };
+        };
+      }) => {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setFieldValue("coordinates", {
+          latitude: lat,
+          longitude: lng,
+        });
       }}
     />
   );
 };
 
-export const Finder = () => {
-  const get = api.places.restaurant.useMutation();
+export const Finder = ({
+  openModal,
+}: {
+  openModal: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const { data: session } = useSession();
+  const getRestaurants = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
-  const { data, setData } = useContext(YelpData);
+  const { setData } = useContext(YelpData);
   const [location, setLocation] = React.useState(
     {} as MyFormValues["coordinates"]
   );
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        const { latitude, longitude } = coords;
-        setLocation({ latitude, longitude });
-        console.log(coords);
-      });
-    }
-  }, []);
+  const { data } = useContext(LocationData);
+
   return (
     <div
       className={
@@ -87,10 +103,10 @@ export const Finder = () => {
     >
       <h2
         className={
-          "bold py-6 text-left font-anek text-2xl uppercase text-primary md:text-4xl"
+          "bold py-6 text-left font-anek text-2xl font-bold uppercase text-primary md:text-4xl"
         }
       >
-        {"Ça part!"}
+        {"Trouves ton lunch!"}
       </h2>
       <Formik
         initialValues={{
@@ -100,7 +116,10 @@ export const Finder = () => {
             label: "You decide | Go hard or go home!... wait..",
           },
           distance: { value: 10000, label: "10km | Allez!" },
-          coordinates: location,
+          coordinates: {
+            latitude: data.coords.lat || 0,
+            longitude: data.coords.lng || 0,
+          },
           keyword: {
             value: "",
             label: "C'est personnel en esti.",
@@ -130,12 +149,20 @@ export const Finder = () => {
           }: FormikHelpers<MyFormValues>
         ) => {
           setSubmitting(true);
-          console.log(values);
+
           const payload =
-            location.latitude > 0
+            data.coords.lng && data.coords.lat
               ? {
-                  latitude: location.latitude,
-                  longitude: location.longitude,
+                  latitude: data.coords.lat,
+                  longitude: data.coords.lng,
+                  priceLevel: values.priceLevel.value,
+                  distance: values.distance.value,
+                  keyword: values.keyword.value,
+                }
+              : values.coordinates.latitude && values.coordinates.longitude
+              ? {
+                  latitude: values.coordinates.latitude,
+                  longitude: values.coordinates.longitude,
                   priceLevel: values.priceLevel.value,
                   distance: values.distance.value,
                   keyword: values.keyword.value,
@@ -146,13 +173,13 @@ export const Finder = () => {
                   distance: values.distance.value,
                   keyword: values.keyword.value,
                 };
-          const data = await get.mutateAsync(payload);
-          setData(data);
+          const restaurantData = await getRestaurants.mutateAsync(payload);
+          setData(restaurantData);
           setSubmitting(false);
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
-          {!location.longitude && (
+          {!data.coords.lng && (
             <FieldGroup>
               <Label htmlFor="firstName">{"T'es où toi?"}</Label>
               <GooglePlacesAutoComplete />
