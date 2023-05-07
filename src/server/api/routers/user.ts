@@ -25,7 +25,11 @@ export const userRouter = createTRPCRouter({
       }
       const req: Address[] = await ctx.prisma.address.findMany({
         where: {
-          userId: ctx.session.user.id,
+          user: {
+            is: {
+              id: ctx.session.user.id,
+            },
+          },
         },
       });
       return req;
