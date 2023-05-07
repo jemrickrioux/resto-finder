@@ -21,6 +21,7 @@ import {
 } from "@mui/icons-material";
 import { PlaceDetailsResponse } from "@googlemaps/google-maps-services-js";
 import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const YelpBadge = ({ text }: { text: string }) => {
   return (
@@ -80,6 +81,7 @@ const BadgeList = ({ business }: { business: RestoBusiness }) => {
 
 export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
   const utils = api.useContext();
+  const { data: session } = useSession();
 
   const addPlace = api.places.addPlace.useMutation();
   const like = api.user.likePlace.useMutation({
@@ -145,20 +147,22 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       />
       <div className={"absolute right-4 top-4 z-10"}>
         <Badge text={business.distance.toFixed(2) + "km"} Icon={MapPinIcon} />
-        <div className={"my-2 flex space-x-2"}>
-          <HandThumbUpIcon
-            className={`h-8 w-8 cursor-pointer ${
-              status.liked ? "text-green-400" : "text-main"
-            } hover:text-green-400`}
-            onClick={() => like.mutate(business.id)}
-          />
-          <HandThumbDownIcon
-            className={`h-8 w-8 ${
-              status.disliked ? "text-secondary" : "text-main"
-            } cursor-pointer  hover:text-secondary`}
-            onClick={() => dislike.mutate(business.id)}
-          />
-        </div>
+        {session && (
+          <div className={"my-2 flex space-x-2"}>
+            <HandThumbUpIcon
+              className={`h-8 w-8 cursor-pointer ${
+                status.liked ? "text-green-400" : "text-main"
+              } hover:text-green-400`}
+              onClick={() => like.mutate(business.id)}
+            />
+            <HandThumbDownIcon
+              className={`h-8 w-8 ${
+                status.disliked ? "text-secondary" : "text-main"
+              } cursor-pointer  hover:text-secondary`}
+              onClick={() => dislike.mutate(business.id)}
+            />
+          </div>
+        )}
       </div>
       <div
         className={
