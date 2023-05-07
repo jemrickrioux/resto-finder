@@ -33,6 +33,7 @@ import { DistanceSelect } from "~/components/form/DistanceSelect";
 import { KeywordSelect } from "~/components/form/KeywordSelect";
 import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
 import { ToggleInput } from "~/components/form/ToggleInput";
+import { useSession } from "next-auth/react";
 
 const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
@@ -63,8 +64,10 @@ const GooglePlacesAutoComplete = (props: any) => {
 };
 
 export const Finder = () => {
+  const { data: session } = useSession();
   const get = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
+  const addAdd = api.user.addAddress.useMutation();
   const { data, setData } = useContext(YelpData);
   const [location, setLocation] = React.useState(
     {} as MyFormValues["coordinates"]
@@ -75,6 +78,15 @@ export const Finder = () => {
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         const { latitude, longitude } = coords;
         setLocation({ latitude, longitude });
+        const doYou = confirm("Veux-tu sauvegarder ton addresse?");
+        if (doYou) {
+          addAdd.mutate({
+            name: "Current Location",
+            userId: session?.user.id || "1",
+            lat: latitude,
+            lng: longitude,
+          });
+        }
         console.log(coords);
       });
     }

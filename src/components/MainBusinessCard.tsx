@@ -18,6 +18,7 @@ import {
   StarBorderRounded,
 } from "@mui/icons-material";
 import { PlaceDetailsResponse } from "@googlemaps/google-maps-services-js";
+import { useEffect } from "react";
 
 const YelpBadge = ({ text }: { text: string }) => {
   return (
@@ -76,6 +77,7 @@ const BadgeList = ({ business }: { business: RestoBusiness }) => {
 };
 
 export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
+  const addPlace = api.places.addPlace.useMutation();
   const photo = business.image
     ? api.places.photo.useQuery(business.image, {
         refetchOnWindowFocus: false,
@@ -92,6 +94,18 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       staleTime: Infinity,
     }
   );
+  useEffect(() => {
+    if (details.data) {
+      const { id, ...restBusiness } = business;
+      addPlace.mutate({
+        ...restBusiness,
+        ...details.data,
+        googlePlaceId: business.id,
+        lat: business.lat,
+        lng: business.lng,
+      });
+    }
+  }, [details.data]);
 
   return (
     <div

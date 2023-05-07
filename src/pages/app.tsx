@@ -12,7 +12,7 @@ import {
   ArrowPathRoundedSquareIcon,
   ArrowUturnLeftIcon,
 } from "@heroicons/react/24/solid";
-import { RestoBusiness } from "~/server/api/routers/places";
+import { Resto, RestoBusiness } from "~/server/api/routers/places";
 import {
   DeliveryDiningRounded,
   TakeoutDiningRounded,
@@ -27,21 +27,25 @@ type User = {
 
 const UserBadge = ({ user }: { user: User }) => {
   return (
-    <div className={"flex items-center space-x-2 pr-8 pt-8"}>
-      <div className={"font-anek text-2xl font-bold text-primary"}>
-        {user.name}
+    <div className={"group flex flex-col space-y-2"}>
+      <div className={"group flex items-center space-x-2 pr-8 pt-8"}>
+        <div className={"font-anek text-2xl font-bold text-primary"}>
+          {user.name}
+        </div>
+        <img
+          src={user.image ? user.image : "https://www.gravatar.com/avatar/0"}
+          alt={user.name?.toString() || "ok"}
+          className={"h-12 w-12 rounded-full"}
+        />
       </div>
-      <img
-        src={user.image ? user.image : "https://www.gravatar.com/avatar/0"}
-        alt={user.name?.toString() || "ok"}
-        className={"h-12 w-12 rounded-full"}
-      />
     </div>
   );
 };
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
+  const addPlace = api.places.addPlace.useMutation();
+  const addresses = api.user.addresses.useQuery(session?.user.id);
   //const restaurants = api.yelp.restaurant.useQuery();
   const [change, setChange] = useState(false);
   const { setData, data } = useContext(YelpData);
@@ -92,7 +96,24 @@ const Home: NextPage = () => {
           "bg-hero flex w-screen flex-col items-end bg-accent bg-hero-i-like-food"
         }
       >
-        {session && <UserBadge user={session.user} />}
+        <div className={"group"}>
+          {session && <UserBadge user={session.user} />}
+          {addresses.data !== undefined && addresses.data.length > 0 && (
+            <div
+              className={
+                "invisible flex flex-col items-center space-y-4 group-hover:visible"
+              }
+            >
+              {addresses.data.map((address: { name: string }) => {
+                return (
+                  <div key={address.name}>
+                    <div>{address.name}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
         <div className=" flex min-h-screen w-screen flex-col items-center justify-center">
           <section className={"flex flex-col items-center text-center"}>
             <div className={"flex w-screen justify-between px-4 md:w-full "}>
