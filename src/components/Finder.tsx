@@ -96,9 +96,13 @@ const GooglePlacesAutoComplete = (props: any) => {
       }}
       selectProps={{
         value: place,
-        className: "bg-accent w-max",
         placeholder: "Entrez votre adresse",
-
+        styles: {
+          control: (provided) => ({
+            ...provided,
+            width: "100%",
+          }),
+        },
         onChange: (place, actionMeta) => {
           void handlePlaceChange(place, actionMeta);
         },
