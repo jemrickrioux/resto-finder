@@ -67,8 +67,10 @@ const Global = ({ children }: { children: ReactNode }) => {
     distance.setError(error);
     distance.setLoading(loading);
     if (latitude && longitude) {
+      distance.setUsingLocation(true);
       distance.setCoordinates(latitude, longitude);
     }
+    distance.setUsingLocation(false);
     if (favorite.data !== undefined && favorite.data !== null) {
       if (latitude && longitude) {
         const theDistance = calculateDistance(

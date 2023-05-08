@@ -153,11 +153,7 @@ const App: NextPage = () => {
               {business && (
                 <>
                   <MainBusinessCard business={business} />
-                  <div
-                    className={
-                      "flex w-full justify-between space-x-4 px-2 py-2"
-                    }
-                  >
+                  <div className={"flex w-full justify-between px-2 py-2"}>
                     <div
                       onClick={() => setChange(!change)}
                       className={

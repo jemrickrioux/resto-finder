@@ -2,17 +2,21 @@ import * as React from "react";
 import { Formik, Field, Form, FormikHelpers, useFormikContext } from "formik";
 import { Button } from "~/components/Button";
 import { api } from "~/utils/api";
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useContext,
-  useEffect,
-} from "react";
+import { Dispatch, SetStateAction, useContext } from "react";
 import * as Yup from "yup";
+import { env } from "~/env.mjs";
+import { DistanceSelect } from "~/components/form/DistanceSelect";
+import { KeywordSelect } from "~/components/form/KeywordSelect";
+import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
+import { ToggleInput } from "~/components/form/ToggleInput";
+import { useSession } from "next-auth/react";
+import { LocationData } from "~/context/locationContext";
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+} from "react-google-places-autocomplete";
+import { SingleValue } from "react-select";
 
 import { YelpData } from "~/context/context";
-import { useRouter } from "next/router";
 
 export interface MyFormValues {
   priceLevel: {
@@ -31,18 +35,6 @@ export interface MyFormValues {
   coordinates: { latitude: number; longitude: number };
 }
 
-import Autocomplete from "react-google-autocomplete";
-import { env } from "~/env.mjs";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
-import { DistanceSelect } from "~/components/form/DistanceSelect";
-import { KeywordSelect } from "~/components/form/KeywordSelect";
-import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
-import { ToggleInput } from "~/components/form/ToggleInput";
-import { useSession } from "next-auth/react";
-import { Address } from "@prisma/client";
-import { LocationData } from "~/context/locationContext";
-
 const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
 };
@@ -53,30 +45,65 @@ export const Label = (props: any) => {
 
 export const FieldGroup = (props: any) => {
   return (
-    <div className={"mb-4 flex flex-col items-start space-y-2"} {...props} />
+    <div className={" mb-4 flex  flex-col items-start space-y-2"} {...props} />
   );
 };
 
+type PlaceOption = {
+  label: string;
+  value: PlaceResult;
+};
+
+type PlaceResult = {
+  description: string;
+  place_id: string;
+  reference: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+  terms: {
+    offset: number;
+    value: string;
+  }[];
+  types: string[];
+};
+
 const GooglePlacesAutoComplete = (props: any) => {
+  const [place, setPlace] = React.useState<SingleValue<PlaceOption>>(null);
   const { values, setFieldValue } = useFormikContext();
   const { setCoordinates } = useContext(LocationData);
 
+  async function handlePlaceChange(
+    place: SingleValue<PlaceOption>,
+    action: any
+  ) {
+    setPlace(place);
+    if (!place) return;
+    const result = await geocodeByPlaceId(place.value.place_id);
+    if (!result || result[0] === undefined) return;
+    setCoordinates(
+      result[0].geometry.location.lat(),
+      result[0].geometry.location.lng()
+    );
+  }
+
   return (
-    <Autocomplete
-      className={"bg-accent"}
-      apiKey={env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
-      onPlaceSelected={(place: {
-        geometry: {
-          location: { lat: () => number; lng: () => number };
-        };
-      }) => {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        setFieldValue("coordinates", {
-          latitude: lat,
-          longitude: lng,
-        });
+    <GooglePlacesAutocomplete
+      apiOptions={{
+        language: "fr",
+        region: "CA",
       }}
+      selectProps={{
+        value: place,
+        className: "bg-accent w-max",
+        placeholder: "Entrez votre adresse",
+
+        onChange: (place, actionMeta) => {
+          void handlePlaceChange(place, actionMeta);
+        },
+      }}
+      apiKey={env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
     />
   );
 };
@@ -89,6 +116,7 @@ export const Finder = ({
   const { data: session } = useSession();
   const getRestaurants = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
+  const distance = useContext(LocationData);
   const { setData } = useContext(YelpData);
   const [location, setLocation] = React.useState(
     {} as MyFormValues["coordinates"]
@@ -98,7 +126,7 @@ export const Finder = ({
   return (
     <div
       className={
-        "rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:w-[800px] md:px-10  md:py-10"
+        "min-w-11/12 w-full rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:w-[800px]  md:px-10 md:py-10"
       }
     >
       <h2
@@ -142,11 +170,7 @@ export const Finder = ({
         })}
         onSubmit={async (
           values: MyFormValues,
-          {
-            setSubmitting,
-            resetForm,
-            validateForm,
-          }: FormikHelpers<MyFormValues>
+          { setSubmitting }: FormikHelpers<MyFormValues>
         ) => {
           setSubmitting(true);
 
@@ -179,7 +203,7 @@ export const Finder = ({
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
-          {!data.coords.lng && (
+          {!distance.data.usingLocation && (
             <FieldGroup>
               <Label htmlFor="firstName">{"T'es où toi?"}</Label>
               <GooglePlacesAutoComplete />
@@ -191,7 +215,7 @@ export const Finder = ({
             }`}
           >
             <ToggleInput handler={setAdvanced} value={advanced} />
-            <p>{"Sélectionne ça pour faire ton capricieux"}</p>
+            <p>{"Plus d'options"}</p>
           </div>
 
           {advanced && (

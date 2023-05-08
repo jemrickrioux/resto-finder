@@ -12,7 +12,7 @@ export function ServicesFilters(props: {
   handler1: (value: ((prevState: boolean) => boolean) | boolean) => void;
 }) {
   return (
-    <div className={"flex w-screen justify-between px-4 md:w-full "}>
+    <div className={"flex w-full justify-between px-4 py-4 md:w-full  "}>
       <div className={"flex w-max items-center space-x-2"}>
         <DeliveryDiningRounded
           fontSize={"large"}
