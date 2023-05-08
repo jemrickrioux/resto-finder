@@ -37,6 +37,7 @@ export function Modal({
       lat: distance.data.coords.lat,
       lng: distance.data.coords.lng,
     });
+    setIsOpen(false);
   }
 
   return (

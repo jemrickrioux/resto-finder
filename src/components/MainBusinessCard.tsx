@@ -14,12 +14,9 @@ import {
 import { api } from "~/utils/api";
 import {
   SportsBarRounded,
-  WineBarRounded,
   DeliveryDiningRounded,
   TakeoutDiningRounded,
-  StarBorderRounded,
 } from "@mui/icons-material";
-import { PlaceDetailsResponse } from "@googlemaps/google-maps-services-js";
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -135,7 +132,7 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
   return (
     <div
       className={
-        "relative flex  flex-col justify-center rounded-lg border-2 border-primary bg-white/50 shadow-xl md:w-[600px]"
+        "relative mx-4  flex flex-col justify-center rounded-lg border-2 border-primary bg-white/50 shadow-xl md:w-[600px]"
       }
     >
       <img
@@ -174,13 +171,13 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       <div className={"absolute bottom-0 left-0 right-0 z-10"}>
         <div
           className={
-            "bold flex w-full justify-between bg-primary/90 px-6 py-4 text-left font-anek uppercase text-secondary"
+            "bold flex w-full justify-between bg-primary px-6 py-4 text-left font-anek uppercase text-secondary"
           }
         >
           <div>
             <div
               className={
-                "flex w-max max-w-sm items-center justify-center text-xl font-bold text-main md:text-3xl"
+                "flex w-full items-center justify-center overflow-hidden text-ellipsis text-xl font-bold text-main md:text-3xl"
               }
             >
               {business.name}

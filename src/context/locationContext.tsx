@@ -9,6 +9,7 @@ export type LocationState = {
   saved: boolean;
   loading: boolean;
   error: string | null;
+  usingLocation: boolean;
 };
 export const LocationData = createContext(
   {} as {
@@ -19,6 +20,7 @@ export const LocationData = createContext(
     setCoordinates: (lat: number, lng: number) => void;
     setName: (name: string) => void;
     setSaved: (saved: boolean) => void;
+    setUsingLocation: (usingLocation: boolean) => void;
   }
 );
 const LocationContext = (props: { children: React.ReactNode }) => {
@@ -27,6 +29,7 @@ const LocationContext = (props: { children: React.ReactNode }) => {
     error: null,
     saved: false,
     name: null,
+    usingLocation: false,
     coords: {
       lat: null,
       lng: null,
@@ -66,6 +69,15 @@ const LocationContext = (props: { children: React.ReactNode }) => {
     });
   }
 
+  function setUsingLocation(usingLocation: boolean) {
+    setData((prev) => {
+      return {
+        ...prev,
+        usingLocation,
+      };
+    });
+  }
+
   function setSaved(saved: boolean) {
     setData((prev) => {
       return {
@@ -84,6 +96,7 @@ const LocationContext = (props: { children: React.ReactNode }) => {
         setCoordinates,
         setName,
         setSaved,
+        setUsingLocation,
       }}
     >
       {props.children}
