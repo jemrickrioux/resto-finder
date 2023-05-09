@@ -51,8 +51,8 @@ const Home: NextPage = () => {
             <div
               className={"font-anek text-sm text-primary underline md:text-xs"}
             >
-              Je veux accéder à une version limitée même si les fonctionnalités
-              vont être limitées.
+              Je veux accéder y accéder <strong>sans me connecter</strong> même
+              si les fonctionnalités vont être <strong>limitées</strong>.
             </div>
           </Link>
         )}
