@@ -11,8 +11,7 @@ import {
 } from "@googlemaps/google-maps-services-js";
 import * as process from "process";
 import { calculateDistance } from "~/utils/distance";
-import { rsort } from "semver";
-import { TRPCContextProps } from "@trpc/react-query/shared";
+import { RestoBusiness, RestoBusinessDetails } from "~/types/types";
 
 const client = new Client({});
 
@@ -160,24 +159,3 @@ export const placesRouter = createTRPCRouter({
       return place;
     }),
 });
-
-export type RestoBusinessDetails = {
-  id: string;
-  phone: string;
-  website: string;
-  ratings: number;
-};
-export type RestoBusiness = {
-  id: string;
-  name: string;
-  types: string[];
-  address: string;
-  image: null | string;
-  distance: number;
-  rating: number;
-  priceLevel: number;
-  lat: number;
-  lng: number;
-};
-
-export type Resto = RestoBusiness & RestoBusinessDetails;

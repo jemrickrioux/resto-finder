@@ -1,65 +1,25 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { api } from "~/utils/api";
 import { Finder } from "~/components/Finder";
 import { SkeletonFinder } from "~/components/SkeletonFinder";
 import React, { useContext, useEffect, useState } from "react";
 import { MainBusinessCard } from "~/components/MainBusinessCard";
-import { YelpData } from "~/context/context";
+import { YelpData } from "~/context/resultsContext";
 import {
   ArrowPathRoundedSquareIcon,
   MapPinIcon,
 } from "@heroicons/react/24/solid";
-import { RestoBusiness } from "~/server/api/routers/places";
 import { signIn, useSession } from "next-auth/react";
+
 import { Modal } from "~/components/Modal";
 import { Menu } from "~/components/Menu";
 import { UserBadge } from "~/components/UserBadge";
 import { ServicesFilters } from "~/components/ServicesFilters";
 import { LocationData } from "~/context/locationContext";
 import ReactGA from "react-ga4";
-
-const useRandomizer = (
-  data: RestoBusiness[],
-  livraison: boolean,
-  takeout: boolean,
-  change: boolean
-) => {
-  return React.useMemo(() => {
-    if (data.length > 0) {
-      if (livraison && takeout) {
-        const filtered = data.filter(
-          (item: RestoBusiness) =>
-            item.types.includes("meal_delivery") &&
-            item.types.includes("meal_takeaway")
-        );
-        const random = Math.floor(Math.random() * filtered.length);
-        return filtered[random];
-      }
-
-      if (livraison) {
-        const filtered = data.filter((item: RestoBusiness) =>
-          item.types.includes("meal_delivery")
-        );
-        const random = Math.floor(Math.random() * filtered.length);
-        return filtered[random];
-      }
-
-      if (takeout) {
-        const filtered = data.filter((item: RestoBusiness) =>
-          item.types.includes("meal_takeaway")
-        );
-        const random = Math.floor(Math.random() * filtered.length);
-        return filtered[random];
-      }
-      const random = Math.floor(Math.random() * data.length);
-      return data[random];
-    } else {
-      return null;
-    }
-  }, [data, change, livraison, takeout]);
-};
+import { useRandomizer } from "~/hooks/useRandomizer";
+import { BaseLayout } from "~/layouts/BaseLayout";
 
 const App: NextPage = () => {
   const { data: session } = useSession();
@@ -80,46 +40,41 @@ const App: NextPage = () => {
   });
 
   return (
-    <>
-      <Head>
-        <title>On Mange Quoi</title>
-        <meta
-          name="description"
-          content="Trouves un réponse à cette fameuse question"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main
-        className={
-          "bg-hero flex w-screen flex-col items-end bg-accent bg-hero-i-like-food"
-        }
-      >
+    <BaseLayout
+      title={"On Manges Quoi | App"}
+      description={"Trouves ton lunch!"}
+    >
+      <>
         <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}></Modal>
 
-        <div className={"flex w-screen justify-between"}>
-          <div className={"group flex items-center space-x-2 pl-8 pt-8"}>
+        <div className={"flex w-screen justify-between pt-8"}>
+          <div className={"group flex items-center space-x-2 pl-8"}>
             <MapPinIcon
               className={`h-8 w-8 ${
-                distance.data.error ? "text-secondary" : "text-primary"
+                distance.error &&
+                distance.coordinates.lat === 0 &&
+                distance.coordinates.lng === 0
+                  ? "text-secondary"
+                  : "text-primary"
               }
-              ${distance.data.loading ? "animate-pulse" : ""}`}
+              ${distance.loading ? "animate-pulse" : ""}`}
             />
             <div
               onClick={() => setIsModalOpen(true)}
               className={`${
-                distance.data.name
+                distance.name
                   ? "text-primary"
-                  : distance.data.error
+                  : distance.error &&
+                    distance.coordinates.lat === 0 &&
+                    distance.coordinates.lng === 0
                   ? " text-secondary"
                   : "cursor-pointer text-main underline hover:text-primary"
               }`}
             >
-              {distance.data.name
-                ? distance.data.name
+              {distance.name
+                ? distance.name
                 : session
                 ? "Enregistrer le lieu"
-                : distance.data.error
-                ? distance.data.error
                 : ""}
             </div>
           </div>
@@ -130,7 +85,7 @@ const App: NextPage = () => {
               ) : (
                 <p
                   className={
-                    "p-4 font-anek text-xl hover:text-primary hover:underline"
+                    "pr-8 font-anek text-xl hover:text-primary hover:underline"
                   }
                   onClick={() => void signIn("facebook")}
                 >
@@ -181,7 +136,7 @@ const App: NextPage = () => {
               )}
             </div>
             <div>
-              {!distance.data.loading && !business ? (
+              {!distance.loading && !business ? (
                 <Finder openModal={setIsModalOpen} />
               ) : (
                 !business && <SkeletonFinder />
@@ -189,8 +144,8 @@ const App: NextPage = () => {
             </div>
           </section>
         </div>
-      </main>
-    </>
+      </>
+    </BaseLayout>
   );
 };
 

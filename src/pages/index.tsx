@@ -1,13 +1,15 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-
-import { api } from "~/utils/api";
 import { Button } from "~/components/Button";
-import { useSession, signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import ReactGA from "react-ga4";
+import { BaseLayout } from "~/layouts/BaseLayout";
+import Link from "next/link";
+import { session } from "next-auth/core/routes";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
   useEffect(() => {
     ReactGA.send({
       hitType: "pageview",
@@ -17,19 +19,9 @@ const Home: NextPage = () => {
   });
 
   return (
-    <>
-      <Head>
-        <title>On Mange Quoi</title>
-        <meta
-          name="description"
-          content="Trouves un réponse à cette fameuse question"
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="bg-hero flex min-h-screen flex-col items-center justify-center bg-accent bg-hero-i-like-food ">
-        <section
-          className={"mx-4 flex flex-col items-start space-y-4  text-left"}
-        >
+    <BaseLayout title={"On Mange Quoi"} description={"Manges quoi?"}>
+      <div className={"mx-4 flex flex-col justify-between space-y-10 "}>
+        <section className={"flex flex-col items-start space-y-4 text-left"}>
           <h1 className="-mb-4 font-anek text-4xl font-bold uppercase  text-secondary md:text-8xl">
             {"C'est quoi qu'on mange?"}
           </h1>
@@ -44,12 +36,7 @@ const Home: NextPage = () => {
             }
           >
             <Button
-              text={"Continuer en tant qu'invité"}
-              size={"xs"}
-              link={"/app"}
-            ></Button>
-            <Button
-              text={"Connexion"}
+              text={session ? "Continuer" : "Se connecter avec Facebook"}
               size={"xs"}
               action={() =>
                 signIn("facebook", {
@@ -59,8 +46,18 @@ const Home: NextPage = () => {
             ></Button>
           </div>
         </section>
-      </main>
-    </>
+        {!session && (
+          <Link href={"/app"}>
+            <div
+              className={"font-anek text-sm text-primary underline md:text-xs"}
+            >
+              Je veux accéder y accéder <strong>sans me connecter</strong> même
+              si les fonctionnalités vont être <strong>limitées</strong>.
+            </div>
+          </Link>
+        )}
+      </div>
+    </BaseLayout>
   );
 };
 

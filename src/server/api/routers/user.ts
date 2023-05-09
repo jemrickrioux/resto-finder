@@ -1,10 +1,5 @@
 import { z } from "zod";
-import axios from "axios";
-import {
-  createTRPCRouter,
-  publicProcedure,
-  protectedProcedure,
-} from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import type { Address } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
@@ -219,7 +214,7 @@ export const userRouter = createTRPCRouter({
       },
     });
   }),
-  getFavoriteAddress: publicProcedure.query(async ({ ctx, input }) => {
+  getFavoriteAddress: publicProcedure.query(async ({ ctx }) => {
     if (ctx.session === null) {
       throw new Error("No user id provided");
     }
@@ -235,7 +230,7 @@ export const userRouter = createTRPCRouter({
     if (!user) throw new Error("User not found");
     return user.favorite;
   }),
-  getLiked: publicProcedure.query(async ({ ctx, input }) => {
+  getLiked: publicProcedure.query(async ({ ctx }) => {
     if (ctx.session === null) {
       throw new Error("No user id provided");
     }

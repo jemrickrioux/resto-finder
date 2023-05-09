@@ -2,13 +2,10 @@ import { type NextPage } from "next";
 import Head from "next/head";
 
 import { api } from "~/utils/api";
-import { Button } from "~/components/Button";
-import { useSession, signIn } from "next-auth/react";
 import { MainBusinessCard } from "~/components/MainBusinessCard";
 import { calculateDistance } from "~/utils/distance";
 import { useContext } from "react";
 import { LocationData } from "~/context/locationContext";
-import parseJson from "parse-json";
 
 const Home: NextPage = () => {
   const liked = api.user.getLiked.useQuery();
@@ -29,8 +26,8 @@ const Home: NextPage = () => {
         >
           {liked.data &&
             liked.data.map((item) => {
-              if (distance.data.coords.lat === null) return null;
-              if (distance.data.coords.lng === null) return null;
+              if (distance.coordinates.lat === null) return null;
+              if (distance.coordinates.lng === null) return null;
               const businessData = {
                 ...item,
                 lat: item.lat!,
@@ -39,8 +36,8 @@ const Home: NextPage = () => {
                 types: item.types as string[],
                 distance: calculateDistance(
                   {
-                    lat: distance.data.coords.lat,
-                    lng: distance.data.coords.lng,
+                    lat: distance.coordinates.lat,
+                    lng: distance.coordinates.lng,
                   },
                   { lat: item.lat!, lng: item.lng! }
                 ),

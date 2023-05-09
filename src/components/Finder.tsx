@@ -4,36 +4,16 @@ import { Button } from "~/components/Button";
 import { api } from "~/utils/api";
 import { Dispatch, SetStateAction, useContext } from "react";
 import * as Yup from "yup";
-import { env } from "~/env.mjs";
 import { DistanceSelect } from "~/components/form/DistanceSelect";
 import { KeywordSelect } from "~/components/form/KeywordSelect";
 import { PriceLevelSelect } from "~/components/form/PriceLevelSelect";
 import { ToggleInput } from "~/components/form/ToggleInput";
 import { useSession } from "next-auth/react";
 import { LocationData } from "~/context/locationContext";
-import GooglePlacesAutocomplete, {
-  geocodeByPlaceId,
-} from "react-google-places-autocomplete";
-import { SingleValue } from "react-select";
 
-import { YelpData } from "~/context/context";
-
-export interface MyFormValues {
-  priceLevel: {
-    label: string;
-    value: number;
-  };
-  distance: {
-    label: string;
-    value: number;
-  };
-  location: string;
-  keyword: {
-    label: string;
-    value: string;
-  };
-  coordinates: { latitude: number; longitude: number };
-}
+import { YelpData } from "~/context/resultsContext";
+import { GooglePlacesAutoComplete } from "~/components/form/GooglePlacesAutocomplete";
+import { FinderFormValues } from "~/types/types";
 
 const MyField = (props: any) => {
   return <Field className={"bg-accent"} {...props} />;
@@ -49,69 +29,6 @@ export const FieldGroup = (props: any) => {
   );
 };
 
-type PlaceOption = {
-  label: string;
-  value: PlaceResult;
-};
-
-type PlaceResult = {
-  description: string;
-  place_id: string;
-  reference: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-  };
-  terms: {
-    offset: number;
-    value: string;
-  }[];
-  types: string[];
-};
-
-const GooglePlacesAutoComplete = (props: any) => {
-  const [place, setPlace] = React.useState<SingleValue<PlaceOption>>(null);
-  const { values, setFieldValue } = useFormikContext();
-  const { setCoordinates } = useContext(LocationData);
-
-  async function handlePlaceChange(
-    place: SingleValue<PlaceOption>,
-    action: any
-  ) {
-    setPlace(place);
-    if (!place) return;
-    const result = await geocodeByPlaceId(place.value.place_id);
-    if (!result || result[0] === undefined) return;
-    setCoordinates(
-      result[0].geometry.location.lat(),
-      result[0].geometry.location.lng()
-    );
-  }
-
-  return (
-    <GooglePlacesAutocomplete
-      apiOptions={{
-        language: "fr",
-        region: "CA",
-      }}
-      selectProps={{
-        value: place,
-        placeholder: "Entrez votre adresse",
-        styles: {
-          control: (provided) => ({
-            ...provided,
-            width: "100%",
-          }),
-        },
-        onChange: (place, actionMeta) => {
-          void handlePlaceChange(place, actionMeta);
-        },
-      }}
-      apiKey={env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
-    />
-  );
-};
-
 export const Finder = ({
   openModal,
 }: {
@@ -123,9 +40,9 @@ export const Finder = ({
   const distance = useContext(LocationData);
   const { setData } = useContext(YelpData);
   const [location, setLocation] = React.useState(
-    {} as MyFormValues["coordinates"]
+    {} as FinderFormValues["coordinates"]
   );
-  const { data } = useContext(LocationData);
+  const { coordinates } = useContext(LocationData);
 
   return (
     <div
@@ -149,8 +66,8 @@ export const Finder = ({
           },
           distance: { value: 10000, label: "10km | Allez!" },
           coordinates: {
-            latitude: data.coords.lat || 0,
-            longitude: data.coords.lng || 0,
+            latitude: coordinates.lat || 0,
+            longitude: coordinates.lng || 0,
           },
           keyword: {
             value: "",
@@ -173,16 +90,16 @@ export const Finder = ({
           }).required("Vous devez choisir un indispensable!"),
         })}
         onSubmit={async (
-          values: MyFormValues,
-          { setSubmitting }: FormikHelpers<MyFormValues>
+          values: FinderFormValues,
+          { setSubmitting }: FormikHelpers<FinderFormValues>
         ) => {
           setSubmitting(true);
 
           const payload =
-            data.coords.lng && data.coords.lat
+            coordinates.lng && coordinates.lat
               ? {
-                  latitude: data.coords.lat,
-                  longitude: data.coords.lng,
+                  latitude: coordinates.lat,
+                  longitude: coordinates.lng,
                   priceLevel: values.priceLevel.value,
                   distance: values.distance.value,
                   keyword: values.keyword.value,
@@ -207,7 +124,7 @@ export const Finder = ({
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
-          {!distance.data.usingLocation && (
+          {distance.locationMode === "none" && (
             <FieldGroup>
               <Label htmlFor="firstName">{"T'es où toi?"}</Label>
               <GooglePlacesAutoComplete />

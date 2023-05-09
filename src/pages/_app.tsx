@@ -1,7 +1,7 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
-import YelpContext from "~/context/context";
+import ResultsContext from "~/context/resultsContext";
 
 import { api } from "~/utils/api";
 
@@ -23,71 +23,6 @@ Bugsnag.start({
 });
 const ErrorBoundary = Bugsnag.getPlugin("react")!.createErrorBoundary(React);
 
-const useGeoLocation = () => {
-  const [latitude, setLatitude] = useState(0);
-  const [longitude, setLongitude] = useState(0);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      setLoading(true);
-      // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          const { latitude, longitude } = coords;
-
-          setLatitude(latitude);
-          setLongitude(longitude);
-          setLoading(false);
-          setError(null);
-        },
-        () => {
-          setLoading(false);
-          setError("Impossible d'accéder à votre emplacement");
-        }
-      );
-    }
-  }, []);
-  return {
-    latitude,
-    longitude,
-    error,
-    loading,
-  };
-};
-
-const Global = ({ children }: { children: ReactNode }) => {
-  const { data: session } = useSession();
-  const distance = useContext(LocationData);
-  const favorite = api.user.getFavoriteAddress.useQuery(undefined, {
-    enabled: session?.user !== null,
-  });
-  const { latitude, longitude, error, loading } = useGeoLocation();
-  useEffect(() => {
-    distance.setError(error);
-    distance.setLoading(loading);
-    if (latitude && longitude) {
-      distance.setUsingLocation(true);
-      distance.setCoordinates(latitude, longitude);
-    }
-    distance.setUsingLocation(false);
-    if (favorite.data !== undefined && favorite.data !== null) {
-      if (latitude && longitude) {
-        const theDistance = calculateDistance(
-          { lat: latitude, lng: longitude },
-          { lat: favorite.data.lat, lng: favorite.data.lng }
-        );
-        if (theDistance > 0 && theDistance < 0.5) {
-          distance.setCoordinates(favorite.data.lat, favorite.data.lng);
-          distance.setName(favorite.data.name);
-          distance.setSaved(true);
-        }
-      }
-    }
-  }, [favorite.data, loading]);
-
-  return <div>{children}</div>;
-};
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -96,11 +31,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <ErrorBoundary>
       <SessionProvider session={session}>
         <LocationContext>
-          <YelpContext>
-            <Global>
-              <Component {...pageProps} />
-            </Global>
-          </YelpContext>
+          <ResultsContext>
+            <Component {...pageProps} />
+          </ResultsContext>
         </LocationContext>
       </SessionProvider>
     </ErrorBoundary>
