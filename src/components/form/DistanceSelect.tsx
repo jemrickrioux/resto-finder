@@ -4,12 +4,12 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 import * as React from "react";
 import { Values } from "zod";
-import { MyFormValues } from "~/components/Finder";
+import { FinderFo } from "~/components/Finder";
 
 export const DistanceSelect = (props: {
   choices: { value: number; label: string }[];
 }) => {
-  const { values, setFieldValue } = useFormikContext<MyFormValues>();
+  const { values, setFieldValue } = useFormikContext<FinderFo>();
   return (
     <div className="w-full">
       <Listbox

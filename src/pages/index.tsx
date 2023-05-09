@@ -1,9 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-
-import { api } from "~/utils/api";
 import { Button } from "~/components/Button";
-import { useSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useEffect } from "react";
 import ReactGA from "react-ga4";
 

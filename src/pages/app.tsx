@@ -1,12 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 
-import { api } from "~/utils/api";
 import { Finder } from "~/components/Finder";
 import { SkeletonFinder } from "~/components/SkeletonFinder";
 import React, { useContext, useEffect, useState } from "react";
 import { MainBusinessCard } from "~/components/MainBusinessCard";
-import { YelpData } from "~/context/context";
+import { YelpData } from "~/context/resultsContext";
 import {
   ArrowPathRoundedSquareIcon,
   MapPinIcon,

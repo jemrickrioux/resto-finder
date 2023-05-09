@@ -1,5 +1,5 @@
-import { YelpBusiness } from "~/server/api/routers/yelp";
 import { PhoneIcon } from "@heroicons/react/24/solid";
+import { YelpBusiness } from "~/types/types";
 
 export const BusinessCard = ({ business }: { business: YelpBusiness }) => {
   return (

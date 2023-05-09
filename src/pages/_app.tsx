@@ -1,7 +1,7 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider, useSession } from "next-auth/react";
-import YelpContext from "~/context/context";
+import ResultsContext from "~/context/resultsContext";
 
 import { api } from "~/utils/api";
 
@@ -96,11 +96,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <ErrorBoundary>
       <SessionProvider session={session}>
         <LocationContext>
-          <YelpContext>
+          <ResultsContext>
             <Global>
               <Component {...pageProps} />
             </Global>
-          </YelpContext>
+          </ResultsContext>
         </LocationContext>
       </SessionProvider>
     </ErrorBoundary>

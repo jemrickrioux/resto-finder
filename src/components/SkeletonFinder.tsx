@@ -11,7 +11,7 @@ import {
 } from "react";
 import * as Yup from "yup";
 
-import { YelpData } from "~/context/context";
+import { YelpData } from "~/context/resultsContext";
 import { useRouter } from "next/router";
 import { ToggleInput } from "~/components/form/ToggleInput";
 

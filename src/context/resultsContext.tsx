@@ -1,12 +1,10 @@
 import { createContext, useState } from "react";
-
-import type { YelpBusiness } from "~/server/api/routers/yelp";
-import { RestoBusiness } from "~/server/api/routers/places";
+import { RestoBusiness } from "~/types/types";
 
 export const YelpData = createContext(
   {} as { data: RestoBusiness[]; setData: (data: RestoBusiness[]) => void }
 );
-const YelpContext = (props: { children: React.ReactNode }) => {
+const ResultsContext = (props: { children: React.ReactNode }) => {
   const [data, setData] = useState([] as RestoBusiness[]);
   return (
     <YelpData.Provider value={{ data, setData }}>
@@ -15,4 +13,4 @@ const YelpContext = (props: { children: React.ReactNode }) => {
   );
 };
 
-export default YelpContext;
+export default ResultsContext;

@@ -3,12 +3,12 @@ import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 import * as React from "react";
-import { MyFormValues } from "~/components/Finder";
+import { FinderFormValues } from "~/types/types";
 
 export const PriceLevelSelect = (props: {
   choices: { value: number; label: string }[];
 }) => {
-  const { values, setFieldValue } = useFormikContext<MyFormValues>();
+  const { values, setFieldValue } = useFormikContext<FinderFormValues>();
   return (
     <div className="">
       <Listbox

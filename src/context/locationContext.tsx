@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { LocationState, PlaceOption } from "~/types/types";
 
 export type LocationState = {
   coords: {
