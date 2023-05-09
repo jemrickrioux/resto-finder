@@ -3,12 +3,12 @@ import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Fragment } from "react";
 import * as React from "react";
-import { FinderFo } from "~/components/Finder";
+import { FinderFormValues } from "~/types/types";
 
 export const KeywordSelect = (props: {
   choices: { value: string; label: string }[];
 }) => {
-  const { values, setFieldValue } = useFormikContext<FinderFo>();
+  const { values, setFieldValue } = useFormikContext<FinderFormValues>();
   return (
     <div className="">
       <Listbox

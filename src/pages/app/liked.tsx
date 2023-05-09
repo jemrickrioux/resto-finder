@@ -26,8 +26,8 @@ const Home: NextPage = () => {
         >
           {liked.data &&
             liked.data.map((item) => {
-              if (distance.data.coords.lat === null) return null;
-              if (distance.data.coords.lng === null) return null;
+              if (distance.coordinates.lat === null) return null;
+              if (distance.coordinates.lng === null) return null;
               const businessData = {
                 ...item,
                 lat: item.lat!,
@@ -36,8 +36,8 @@ const Home: NextPage = () => {
                 types: item.types as string[],
                 distance: calculateDistance(
                   {
-                    lat: distance.data.coords.lat,
-                    lng: distance.data.coords.lng,
+                    lat: distance.coordinates.lat,
+                    lng: distance.coordinates.lng,
                   },
                   { lat: item.lat!, lng: item.lng! }
                 ),

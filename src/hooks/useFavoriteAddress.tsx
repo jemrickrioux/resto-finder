@@ -23,7 +23,7 @@ export const useFavoriteAddress = (
           { lat: coordinates.lat, lng: coordinates.lng },
           { lat: favorite.data.lat, lng: favorite.data.lng }
         );
-        console.log(favorite.data.name + " est à " + theDistance + " km");
+        console.log(`${favorite.data.name} est à ${theDistance} km`);
         if (theDistance > 0 && theDistance < 0.5) {
           setCoordinates({
             lat: favorite.data.lat,
