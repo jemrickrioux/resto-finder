@@ -1,17 +1,6 @@
 import { createContext, useState } from "react";
 import { LocationState, PlaceOption } from "~/types/types";
 
-export type LocationState = {
-  coords: {
-    lat: number | null;
-    lng: number | null;
-  };
-  name: string | null;
-  saved: boolean;
-  loading: boolean;
-  error: string | null;
-  usingLocation: boolean;
-};
 export const LocationData = createContext(
   {} as {
     data: LocationState;
@@ -22,6 +11,7 @@ export const LocationData = createContext(
     setName: (name: string) => void;
     setSaved: (saved: boolean) => void;
     setUsingLocation: (usingLocation: boolean) => void;
+    setPlace: (place: PlaceOption) => void;
   }
 );
 const LocationContext = (props: { children: React.ReactNode }) => {
@@ -31,6 +21,7 @@ const LocationContext = (props: { children: React.ReactNode }) => {
     saved: false,
     name: null,
     usingLocation: false,
+    place: null,
     coords: {
       lat: null,
       lng: null,
@@ -40,6 +31,13 @@ const LocationContext = (props: { children: React.ReactNode }) => {
     setData((prev) => ({
       ...prev,
       loading: value,
+    }));
+  }
+
+  function setPlace(place: PlaceOption) {
+    setData((prev) => ({
+      ...prev,
+      place,
     }));
   }
   function setError(value: null | string) {
@@ -98,6 +96,7 @@ const LocationContext = (props: { children: React.ReactNode }) => {
         setName,
         setSaved,
         setUsingLocation,
+        setPlace,
       }}
     >
       {props.children}
