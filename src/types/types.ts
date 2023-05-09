@@ -2,7 +2,7 @@
 
 export type PlaceOption = {
   label: string;
-  value: PlaceResult;
+  value: PlaceResult | null;
 };
 
 type PlaceResult = {
@@ -31,7 +31,7 @@ export type LocationState = {
   saved: boolean;
   loading: boolean;
   error: string | null;
-  usingLocation: boolean;
+  geolocationMode: boolean;
   place: PlaceOption | null;
 };
 

@@ -30,12 +30,12 @@ export function Modal({
 
   async function handleSubmit() {
     // ...
-    if (!name || !distance.data.coords.lat || !distance.data.coords.lng)
+    if (!name || !distance.coordinates.lat || !distance.coordinates.lng)
       return null;
     await save.mutateAsync({
       name,
-      lat: distance.data.coords.lat,
-      lng: distance.data.coords.lng,
+      lat: distance.coordinates.lat,
+      lng: distance.coordinates.lng,
     });
     setIsOpen(false);
   }

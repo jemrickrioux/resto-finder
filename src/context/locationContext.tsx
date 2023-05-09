@@ -1,101 +1,76 @@
-import { createContext, useState } from "react";
-import { LocationState, PlaceOption } from "~/types/types";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
+import { PlaceOption } from "~/types/types";
+import { useGeoLocation } from "~/hooks/useGeolocation";
+import { useFavoriteAddress } from "~/hooks/useFavoriteAddress";
 
 export const LocationData = createContext(
   {} as {
-    data: LocationState;
-    setData: (prev: LocationState) => void;
-    setLoading: (value: boolean) => void;
-    setError: (value: null | string) => void;
-    setCoordinates: (lat: number, lng: number) => void;
-    setName: (name: string) => void;
-    setSaved: (saved: boolean) => void;
-    setUsingLocation: (usingLocation: boolean) => void;
-    setPlace: (place: PlaceOption) => void;
+    setLoading: Dispatch<SetStateAction<boolean>>;
+    setError: Dispatch<SetStateAction<null | string>>;
+    setCoordinates: Dispatch<
+      SetStateAction<{ lat: null | number; lng: null | number }>
+    >;
+    setName: Dispatch<SetStateAction<null | string>>;
+    setSaved: Dispatch<SetStateAction<boolean>>;
+    setPlace: Dispatch<SetStateAction<PlaceOption | null>>;
+    loading: boolean;
+    coordinates: { lat: null | number; lng: null | number };
+    error: null | string;
+    place: PlaceOption | null;
+    saved: boolean;
+    name: null | string;
+    locationMode: "none" | "browser" | "favorite";
   }
 );
 const LocationContext = (props: { children: React.ReactNode }) => {
-  const [data, setData] = useState<LocationState>({
-    loading: false,
-    error: null,
-    saved: false,
-    name: null,
-    usingLocation: false,
-    place: null,
-    coords: {
-      lat: null,
-      lng: null,
-    },
-  } as LocationState);
-  function setLoading(value: boolean) {
-    setData((prev) => ({
-      ...prev,
-      loading: value,
-    }));
-  }
+  const [coordinates, setCoordinates] = useState<{
+    lat: null | number;
+    lng: null | number;
+  }>({
+    lat: null,
+    lng: null,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<null | string>(null);
+  const [place, setPlace] = useState<PlaceOption | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [name, setName] = useState<null | string>(null);
+  const [locationMode, setLocationMode] = useState<
+    "none" | "browser" | "favorite"
+  >("none");
 
-  function setPlace(place: PlaceOption) {
-    setData((prev) => ({
-      ...prev,
-      place,
-    }));
-  }
-  function setError(value: null | string) {
-    setData((prev) => ({
-      ...prev,
-      error: value,
-    }));
-  }
+  useGeoLocation(setCoordinates, setError, setLoading, setLocationMode);
+  useFavoriteAddress(
+    setCoordinates,
+    setError,
+    setLoading,
+    setName,
+    setSaved,
+    setLocationMode,
+    coordinates
+  );
 
-  function setCoordinates(lat: number, lng: number) {
-    setData((prev) => {
-      return {
-        ...prev,
-        coords: {
-          lat,
-          lng,
-        },
-      };
-    });
-  }
-
-  function setName(name: string) {
-    setData((prev) => {
-      return {
-        ...prev,
-        name,
-      };
-    });
-  }
-
-  function setUsingLocation(usingLocation: boolean) {
-    setData((prev) => {
-      return {
-        ...prev,
-        usingLocation,
-      };
-    });
-  }
-
-  function setSaved(saved: boolean) {
-    setData((prev) => {
-      return {
-        ...prev,
-        saved,
-      };
-    });
-  }
   return (
     <LocationData.Provider
       value={{
-        data,
-        setData,
+        loading,
+        coordinates,
+        locationMode,
+        error,
+        place,
+        saved,
+        name,
         setLoading,
         setError,
         setCoordinates,
         setName,
         setSaved,
-        setUsingLocation,
         setPlace,
       }}
     >

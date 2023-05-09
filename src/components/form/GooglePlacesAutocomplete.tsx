@@ -13,27 +13,25 @@ export function GooglePlacesAutoComplete(props: any) {
   const {
     setCoordinates,
     setPlace: setPlaceContext,
-    data,
+    place: placeContext,
   } = useContext(LocationData);
-  const [place, setPlace] = React.useState<SingleValue<PlaceOption>>(
-    data.place
-  );
-  const { values, setFieldValue } = useFormikContext();
+  const [place, setPlace] =
+    React.useState<SingleValue<PlaceOption>>(placeContext);
 
   async function handlePlaceChange(
     place: SingleValue<PlaceOption>,
     action: any
   ) {
     setPlace(place);
-    if (!place) return;
+    if (!place || !place.value) return;
     setPlaceContext(place);
 
     const result = await geocodeByPlaceId(place.value.place_id);
     if (!result || result[0] === undefined) return;
-    setCoordinates(
-      result[0].geometry.location.lat(),
-      result[0].geometry.location.lng()
-    );
+    setCoordinates({
+      lat: result[0].geometry.location.lat(),
+      lng: result[0].geometry.location.lng(),
+    });
   }
 
   return (

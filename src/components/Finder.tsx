@@ -42,7 +42,7 @@ export const Finder = ({
   const [location, setLocation] = React.useState(
     {} as FinderFormValues["coordinates"]
   );
-  const { data } = useContext(LocationData);
+  const { coordinates } = useContext(LocationData);
 
   return (
     <div
@@ -66,8 +66,8 @@ export const Finder = ({
           },
           distance: { value: 10000, label: "10km | Allez!" },
           coordinates: {
-            latitude: data.coords.lat || 0,
-            longitude: data.coords.lng || 0,
+            latitude: coordinates.lat || 0,
+            longitude: coordinates.lng || 0,
           },
           keyword: {
             value: "",
@@ -96,10 +96,10 @@ export const Finder = ({
           setSubmitting(true);
 
           const payload =
-            data.coords.lng && data.coords.lat
+            coordinates.lng && coordinates.lat
               ? {
-                  latitude: data.coords.lat,
-                  longitude: data.coords.lng,
+                  latitude: coordinates.lat,
+                  longitude: coordinates.lng,
                   priceLevel: values.priceLevel.value,
                   distance: values.distance.value,
                   keyword: values.keyword.value,
@@ -124,7 +124,7 @@ export const Finder = ({
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
-          {!distance.data.usingLocation && (
+          {distance.locationMode === "none" && (
             <FieldGroup>
               <Label htmlFor="firstName">{"T'es où toi?"}</Label>
               <GooglePlacesAutoComplete />
