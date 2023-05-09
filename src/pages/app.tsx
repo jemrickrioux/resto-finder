@@ -25,10 +25,10 @@ const App: NextPage = () => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [change, setChange] = useState(false);
-  const { setData, data } = useContext(YelpData);
+  const { setChoices, choices } = useContext(YelpData);
   const [livraison, setLivraison] = useState(false);
   const [takeout, setTakeout] = useState(false);
-  const business = useRandomizer(data, livraison, takeout, change);
+  const business = useRandomizer(choices, livraison, takeout, change);
   const distance = useContext(LocationData);
 
   useEffect(() => {
@@ -124,7 +124,7 @@ const App: NextPage = () => {
                     </div>
 
                     <div
-                      onClick={() => setData([])}
+                      onClick={() => setChoices([])}
                       className={
                         "text-md h-full cursor-pointer items-center font-anek text-secondary transition hover:underline"
                       }

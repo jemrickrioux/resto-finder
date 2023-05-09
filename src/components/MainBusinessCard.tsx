@@ -61,6 +61,22 @@ const BadgeList = ({ business }: { business: RestoBusiness }) => {
   );
 };
 
+const TinderLikeIcon = ({ type }: { type: "LIKE" | "DISLIKE" }) => {
+  return (
+    <div
+      className={
+        "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 border-main text-main hover:border-primary hover:text-primary"
+      }
+    >
+      {type === "LIKE" ? (
+        <HandThumbUpIcon className={"h-8 w-8"} />
+      ) : (
+        <HandThumbDownIcon className={"h-8 w-8 "} />
+      )}
+    </div>
+  );
+};
+
 export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
   const utils = api.useContext();
   const { data: session } = useSession();
@@ -129,22 +145,6 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
       />
       <div className={"absolute right-4 top-4 z-10"}>
         <Badge text={business.distance.toFixed(2) + "km"} Icon={MapPinIcon} />
-        {session && (
-          <div className={"my-2 flex space-x-2"}>
-            <HandThumbUpIcon
-              className={`h-8 w-8 cursor-pointer ${
-                status.liked ? "text-green-400" : "text-main"
-              } hover:text-green-400`}
-              onClick={() => like.mutate(business.id)}
-            />
-            <HandThumbDownIcon
-              className={`h-8 w-8 ${
-                status.disliked ? "text-secondary" : "text-main"
-              } cursor-pointer  hover:text-secondary`}
-              onClick={() => dislike.mutate(business.id)}
-            />
-          </div>
-        )}
       </div>
       <div
         className={
@@ -152,6 +152,12 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
         }
       >
         <BadgeList business={business} />
+      </div>
+      <div className={"absolute bottom-24 w-full md:bottom-28"}>
+        <div className={"flex w-full justify-between px-4"}>
+          <TinderLikeIcon type={"DISLIKE"} />
+          <TinderLikeIcon type={"LIKE"} />
+        </div>
       </div>
       <div className={"absolute bottom-0 left-0 right-0 z-10"}>
         <div

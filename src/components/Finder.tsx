@@ -38,7 +38,7 @@ export const Finder = ({
   const getRestaurants = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
   const distance = useContext(LocationData);
-  const { setData } = useContext(YelpData);
+  const { setChoices } = useContext(YelpData);
   const [location, setLocation] = React.useState(
     {} as FinderFormValues["coordinates"]
   );
@@ -119,7 +119,7 @@ export const Finder = ({
                   keyword: values.keyword.value,
                 };
           const restaurantData = await getRestaurants.mutateAsync(payload);
-          setData(restaurantData);
+          setChoices(restaurantData);
           setSubmitting(false);
         }}
       >

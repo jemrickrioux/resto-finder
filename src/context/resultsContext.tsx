@@ -1,14 +1,44 @@
-import { createContext, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useState } from "react";
 import { RestoBusiness } from "~/types/types";
 
+type ResultsContextType = {
+  choices: RestoBusiness[];
+  liked: RestoBusiness[];
+  disliked: RestoBusiness[];
+  setChoices: Dispatch<SetStateAction<RestoBusiness[]>>;
+  addLiked: (resto: RestoBusiness) => void;
+  addDisliked: (resto: RestoBusiness) => void;
+};
+
 export const YelpData = createContext(
-  {} as { data: RestoBusiness[]; setData: (data: RestoBusiness[]) => void }
+  {} as {
+    choices: RestoBusiness[];
+    liked: RestoBusiness[];
+    disliked: RestoBusiness[];
+    setChoices: Dispatch<SetStateAction<RestoBusiness[]>>;
+    addLiked: (resto: RestoBusiness) => void;
+    addDisliked: (resto: RestoBusiness) => void;
+  }
 );
+
 const ResultsContext = (props: { children: React.ReactNode }) => {
-  const [data, setData] = useState([] as RestoBusiness[]);
+  const [choices, setChoices] = useState([] as RestoBusiness[]);
+  const [liked, setLiked] = useState([] as RestoBusiness[]);
+  const [disliked, setDisliked] = useState([] as RestoBusiness[]);
+
+  const addLiked = (resto: RestoBusiness) => {
+    setLiked((prevState) => [...prevState, resto]);
+  };
+
+  const addDisliked = (resto: RestoBusiness) => {
+    setDisliked((prevState) => [...prevState, resto]);
+  };
+
   return (
-    <YelpData.Provider value={{ data, setData }}>
-      {props.children}{" "}
+    <YelpData.Provider
+      value={{ choices, setChoices, addLiked, addDisliked, liked, disliked }}
+    >
+      {props.children}
     </YelpData.Provider>
   );
 };
