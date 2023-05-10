@@ -20,10 +20,10 @@ export const BaseLayout = ({
         <meta name="description" content={description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className={"flex flex-col overflow-y-hidden"}>
+      <div className={"flex h-full w-full flex-col overflow-y-hidden"}>
         {error && <HelloBar message={error} />}
         <main
-          className={`bg-hero flex h-full min-h-screen flex-col items-center justify-center bg-accent bg-hero-i-like-food `}
+          className={`bg-hero flex h-full min-h-screen w-full flex-col items-center justify-center bg-accent bg-hero-i-like-food `}
         >
           {children}
         </main>

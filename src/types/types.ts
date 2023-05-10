@@ -1,5 +1,7 @@
 // Google Places Autocomplete
 
+import { Dispatch, SetStateAction } from "react";
+
 export type PlaceOption = {
   label: string;
   value: PlaceResult | null;
@@ -23,16 +25,21 @@ type PlaceResult = {
 // Context
 
 export type LocationState = {
-  coords: {
-    lat: number | null;
-    lng: number | null;
-  };
-  name: string | null;
-  saved: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+  setError: Dispatch<SetStateAction<null | string>>;
+  setCoordinates: Dispatch<
+    SetStateAction<{ lat: null | number; lng: null | number }>
+  >;
+  setName: Dispatch<SetStateAction<null | string>>;
+  setSaved: Dispatch<SetStateAction<boolean>>;
+  setPlace: Dispatch<SetStateAction<PlaceOption | null>>;
   loading: boolean;
-  error: string | null;
-  geolocationMode: boolean;
+  coordinates: { lat: null | number; lng: null | number };
+  error: null | string;
   place: PlaceOption | null;
+  saved: boolean;
+  name: null | string;
+  locationMode: "none" | "browser" | "favorite";
 };
 
 // Formik types
@@ -71,8 +78,8 @@ export type RestoBusiness = {
   distance: number;
   rating: number;
   priceLevel: number;
-  lat: number;
-  lng: number;
+  numberOfRatings: number;
+  coordinates: { lat: number; lng: number };
 };
 
 export type Resto = RestoBusiness & RestoBusinessDetails;

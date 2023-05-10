@@ -12,35 +12,40 @@ export function ServicesFilters(props: {
   handler1: (value: ((prevState: boolean) => boolean) | boolean) => void;
 }) {
   return (
-    <div className={"flex w-full justify-between px-4 py-4 md:w-full  "}>
-      <div className={"flex w-max items-center space-x-2"}>
-        <DeliveryDiningRounded
-          fontSize={"large"}
-          className={props.livraison ? "text-primary" : "text-gray-200"}
-        ></DeliveryDiningRounded>
+    <div className={"flex w-full flex-col"}>
+      <div className={"flex w-max items-center space-x-4"}>
         <ToggleInput
           handler={props.handler}
           value={props.livraison}
         ></ToggleInput>
-        {props.livraison && (
-          <div className={"font-anek text-xl text-primary"}>Livraison</div>
-        )}
+        <DeliveryDiningRounded
+          fontSize={"large"}
+          className={props.livraison ? "text-primary" : "text-gray-200"}
+        ></DeliveryDiningRounded>
+        <div
+          className={`font-anek text-xl ${
+            props.livraison ? "text-primary" : "text-gray-200"
+          }`}
+        >
+          Livraison
+        </div>
       </div>
 
-      <div className={"flex items-center space-x-2"}>
-        {props.takeout && (
-          <div className={"font-anek text-xl text-primary"}>Takeout</div>
-        )}
-        <ToggleInput
-          handler={props.handler1}
-          value={props.takeout}
-        ></ToggleInput>
+      <div className={"flex w-max items-center space-x-4"}>
         <TakeoutDiningRounded
           fontSize={"large"}
           className={` transition ease-in-out ${
             props.takeout ? "text-primary" : "text-gray-200"
           }`}
         />
+        <ToggleInput
+          handler={props.handler1}
+          value={props.takeout}
+        ></ToggleInput>
+
+        {props.takeout && (
+          <div className={"font-anek text-xl text-primary"}>Takeout</div>
+        )}
       </div>
     </div>
   );

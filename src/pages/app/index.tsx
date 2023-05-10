@@ -4,8 +4,11 @@ import Head from "next/head";
 import { Finder } from "~/components/Finder";
 import { SkeletonFinder } from "~/components/SkeletonFinder";
 import React, { useContext, useEffect, useState } from "react";
-import { MainBusinessCard } from "~/components/MainBusinessCard";
-import { YelpData } from "~/context/resultsContext";
+import {
+  MainBusinessCard,
+  MainBusinessCard1,
+} from "~/components/MainBusinessCard";
+import { Results } from "~/context/resultsContext";
 import {
   ArrowPathRoundedSquareIcon,
   MapPinIcon,
@@ -16,16 +19,19 @@ import { Modal } from "~/components/Modal";
 import { Menu } from "~/components/Menu";
 import { UserBadge } from "~/components/UserBadge";
 import { ServicesFilters } from "~/components/ServicesFilters";
-import { LocationData } from "~/context/locationContext";
+import LocationContext, { LocationData } from "~/context/locationContext";
 import ReactGA from "react-ga4";
 import { useRandomizer } from "~/hooks/useRandomizer";
 import { BaseLayout } from "~/layouts/BaseLayout";
+import { LocationState } from "~/types/types";
+import { LocationIndicator } from "~/components/LocationIndicator";
+import { Button } from "~/components/Button";
 
-const App: NextPage = () => {
+const Index: NextPage = () => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [change, setChange] = useState(false);
-  const { setChoices, choices } = useContext(YelpData);
+  const { setChoices, choices, current, recommandation } = useContext(Results);
   const [livraison, setLivraison] = useState(false);
   const [takeout, setTakeout] = useState(false);
   const business = useRandomizer(choices, livraison, takeout, change);
@@ -48,36 +54,10 @@ const App: NextPage = () => {
         <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}></Modal>
 
         <div className={"flex w-screen justify-between pt-8"}>
-          <div className={"group flex items-center space-x-2 pl-8"}>
-            <MapPinIcon
-              className={`h-8 w-8 ${
-                distance.error &&
-                distance.coordinates.lat === 0 &&
-                distance.coordinates.lng === 0
-                  ? "text-secondary"
-                  : "text-primary"
-              }
-              ${distance.loading ? "animate-pulse" : ""}`}
-            />
-            <div
-              onClick={() => setIsModalOpen(true)}
-              className={`${
-                distance.name
-                  ? "text-primary"
-                  : distance.error &&
-                    distance.coordinates.lat === 0 &&
-                    distance.coordinates.lng === 0
-                  ? " text-secondary"
-                  : "cursor-pointer text-main underline hover:text-primary"
-              }`}
-            >
-              {distance.name
-                ? distance.name
-                : session
-                ? "Enregistrer le lieu"
-                : ""}
-            </div>
-          </div>
+          <LocationIndicator
+            distance={distance}
+            setIsModalOpen={setIsModalOpen}
+          />
           <Menu disabled={!session}>
             <div className={"group"}>
               {session ? (
@@ -96,18 +76,12 @@ const App: NextPage = () => {
           </Menu>
         </div>
 
-        <div className=" flex min-h-screen w-screen flex-col items-center justify-center">
-          <section className={"flex flex-col items-center text-center"}>
-            <ServicesFilters
-              livraison={livraison}
-              handler={setLivraison}
-              takeout={takeout}
-              handler1={setTakeout}
-            />
-            <div className={"flex flex-col items-end"}>
-              {business && (
+        <div className=" flex min-h-screen w-full flex-col items-center justify-center">
+          <section className={"flex w-full flex-col items-center text-center"}>
+            <div className={"flex w-full flex-col items-end"}>
+              {current && !recommandation && (
                 <>
-                  <MainBusinessCard business={business} />
+                  <MainBusinessCard business={current} />
                   <div className={"flex w-full justify-between px-2 py-2"}>
                     <div
                       onClick={() => setChange(!change)}
@@ -134,10 +108,13 @@ const App: NextPage = () => {
                   </div>
                 </>
               )}
+              {recommandation && (
+                <MainBusinessCard1 business={recommandation} />
+              )}
             </div>
-            <div>
+            <div className={"w-full"}>
               {!distance.loading && !business ? (
-                <Finder openModal={setIsModalOpen} />
+                <Finder />
               ) : (
                 !business && <SkeletonFinder />
               )}
@@ -149,4 +126,4 @@ const App: NextPage = () => {
   );
 };
 
-export default App;
+export default Index;

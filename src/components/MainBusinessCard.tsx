@@ -5,6 +5,7 @@ import {
   StarIcon,
   HandThumbUpIcon,
   HandThumbDownIcon,
+  CurrencyDollarIcon,
 } from "@heroicons/react/24/solid";
 
 import { api } from "~/utils/api";
@@ -12,17 +13,27 @@ import {
   SportsBarRounded,
   DeliveryDiningRounded,
   TakeoutDiningRounded,
+  SvgIconComponent,
 } from "@mui/icons-material";
-import React, { useEffect } from "react";
+import React, { ReactNode, useContext, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { RestoBusiness, RestoBusinessDetails } from "~/types/types";
+import { ReactComponentLike } from "prop-types";
+import LocationContext, { LocationData } from "~/context/locationContext";
+import { Results } from "~/context/resultsContext";
 
-const Rating = ({ rating }: { rating: number }) => {
-  const stars = [...Array(Math.floor(rating)).keys()];
+const IconList = ({
+  number,
+  Icon,
+}: {
+  number: number;
+  Icon: ReactComponentLike;
+}) => {
+  const stars = [...Array(Math.floor(number)).keys()];
   return (
-    <div className={"flex items-center space-x-1"}>
+    <div className={"flex w-max items-center space-x-1"}>
       {stars.map((star: number) => (
-        <StarIcon key={star} className={" h-6 w-6 text-main"} />
+        <Icon key={star} className={" h-6 w-6 text-main"} />
       ))}
     </div>
   );
@@ -61,46 +72,78 @@ const BadgeList = ({ business }: { business: RestoBusiness }) => {
   );
 };
 
-const TinderLikeIcon = ({ type }: { type: "LIKE" | "DISLIKE" }) => {
+const TinderLikeIcon = ({
+  type,
+  action,
+}: {
+  type: "LIKE" | "DISLIKE";
+  action: () => void;
+}) => {
   return (
     <div
-      className={
-        "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 border-main text-main hover:border-primary hover:text-primary"
-      }
+      onClick={action}
+      className={`flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border-4 border-main text-main ${
+        type === "LIKE" ? "hover:border-green-300" : "hover:border-secondary"
+      } hover:text-secondary`}
     >
       {type === "LIKE" ? (
-        <HandThumbUpIcon className={"h-8 w-8"} />
+        <HandThumbUpIcon className={"h-10 w-10 hover:text-green-300"} />
       ) : (
-        <HandThumbDownIcon className={"h-8 w-8 "} />
+        <HandThumbDownIcon className={"h-10 w-10 hover:text-secondary"} />
       )}
     </div>
   );
 };
 
 export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
-  const utils = api.useContext();
-  const { data: session } = useSession();
+  const { addDisliked, addLiked } = useContext(Results);
 
+  const handleLike = () => {
+    addLiked(business);
+  };
+  const handleDislike = () => {
+    addDisliked(business);
+  };
+
+  return (
+    <div className={"flex w-full justify-between bg-primary px-4"}>
+      <div className={"flex flex-col justify-center"}>
+        <TinderLikeIcon type={"DISLIKE"} action={handleLike} />
+      </div>
+      <div className={"flex w-full flex-col justify-center "}>
+        <div
+          className={
+            "flex w-full items-center justify-center text-xl font-bold text-main md:text-3xl"
+          }
+        >
+          {business.name}
+        </div>
+        <div
+          className={
+            "flex w-full items-center justify-center text-xl font-bold text-main md:text-3xl"
+          }
+        >
+          {business.distance.toFixed(2)} km
+        </div>
+        <div className={"flex w-full flex-col items-center justify-center"}>
+          <IconList number={business.rating} Icon={StarIcon} />
+          <IconList number={business.priceLevel} Icon={CurrencyDollarIcon} />
+        </div>
+        <BadgeList business={business} />
+      </div>
+      <div className={"flex flex-col justify-center"}>
+        <TinderLikeIcon type={"LIKE"} action={handleDislike} />
+      </div>
+    </div>
+  );
+};
+export const MainBusinessCard1 = ({
+  business,
+}: {
+  business: RestoBusiness;
+}) => {
   const addPlace = api.places.addPlace.useMutation();
-  const like = api.user.likePlace.useMutation({
-    onSuccess: async () => {
-      await utils.invalidate(undefined);
-    },
-  });
-  const dislike = api.user.dislikePlace.useMutation({
-    onSuccess: async () => {
-      await utils.invalidate(undefined);
-    },
-  });
-  const actions = api.user.actions.useQuery(business.id);
-  const status = React.useMemo(() => {
-    const data = actions.data;
-    if (!data) return { liked: false, disliked: false };
-    return {
-      liked: data.map((d) => d.type).includes("LIKE"),
-      disliked: data.map((d) => d.type).includes("DISLIKE"),
-    };
-  }, [actions.data, business]);
+
   const photo = business.image
     ? api.places.photo.useQuery(business.image, {
         refetchOnWindowFocus: false,
@@ -124,8 +167,8 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
         ...restBusiness,
         ...details.data,
         googlePlaceId: business.id,
-        lat: business.lat,
-        lng: business.lng,
+        lat: business.coordinates.lat,
+        lng: business.coordinates.lng,
       });
     }
   }, [details.data]);
@@ -133,14 +176,14 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
   return (
     <div
       className={
-        "relative mx-4  flex flex-col justify-center rounded-lg border-2 border-primary bg-white/50 shadow-xl md:w-[600px]"
+        "relative mx-4  flex flex-col justify-center rounded-lg border-2 border-primary bg-white/50 shadow-xl md:w-[1200px]"
       }
     >
       <img
         src={typeof photo === "string" ? photo : photo.data}
         alt={business.name}
         className={
-          "relative h-[450px] w-screen rounded-t-lg object-cover md:w-[600px]"
+          "relative h-[450px] w-screen rounded-t-lg object-cover md:h-[600px] md:w-[1200px]"
         }
       />
       <div className={"absolute right-4 top-4 z-10"}>
@@ -152,12 +195,6 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
         }
       >
         <BadgeList business={business} />
-      </div>
-      <div className={"absolute bottom-24 w-full md:bottom-28"}>
-        <div className={"flex w-full justify-between px-4"}>
-          <TinderLikeIcon type={"DISLIKE"} />
-          <TinderLikeIcon type={"LIKE"} />
-        </div>
       </div>
       <div className={"absolute bottom-0 left-0 right-0 z-10"}>
         <div
@@ -174,7 +211,9 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
               {business.name}
             </div>
             <div>
-              {details.data && <Rating rating={details.data.ratings} />}
+              {details.data && (
+                <IconList Icon={StarIcon} number={details.data.ratings} />
+              )}
             </div>
           </div>
           {details.data && (

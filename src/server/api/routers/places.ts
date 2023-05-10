@@ -5,6 +5,7 @@ import type { Place as DBPlace } from "@prisma/client";
 
 import {
   Client,
+  Language,
   Place,
   PlaceData,
   PlacePhotoResponse,
@@ -28,12 +29,12 @@ export const placesRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      console.log(input);
       const req =
         input.latitude !== undefined &&
         input.longitude !== undefined &&
         (await client.placesNearby({
           params: {
+            language: "fr-CA" as Language,
             type: "restaurant",
             key: process.env.GOOGLE_PLACES_API_KEY as string,
             radius: input.distance,
@@ -43,11 +44,10 @@ export const placesRouter = createTRPCRouter({
             maxprice: input.priceLevel,
           },
         }));
-      console.log(req);
       if (!req) {
         throw new Error("Could not find any restaurants");
       }
-      console.log(req.data.results);
+      console.log("res", req.data.results, "res end");
 
       const results: RestoBusiness[] = req.data.results.map((result) => {
         return {
@@ -57,8 +57,8 @@ export const placesRouter = createTRPCRouter({
           id: result.place_id!,
           rating: result.rating!,
           priceLevel: result.price_level!,
-          lat: result.geometry!.location.lat,
-          lng: result.geometry!.location.lng,
+          coordinates: result.geometry!.location,
+          numberOfRatings: result.user_ratings_total!,
           distance: calculateDistance(
             { lat: input.latitude!, lng: input.longitude! },
             {
@@ -80,7 +80,7 @@ export const placesRouter = createTRPCRouter({
       params: {
         key: process.env.GOOGLE_PLACES_API_KEY as string,
         photoreference: input,
-        maxwidth: 800,
+        maxwidth: 1200,
       },
       responseType: "arraybuffer",
     });
@@ -91,18 +91,19 @@ export const placesRouter = createTRPCRouter({
     }
   }),
   details: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
-    const existing = await ctx.prisma.place.findUnique({
+    /* const existing = await ctx.prisma.place.findUnique({
       where: {
         googlePlaceId: input,
       },
     });
-    console.log("existing", existing);
+    console.log("existing", existing);*/
     const req = await client.placeDetails({
       params: {
         key: process.env.GOOGLE_PLACES_API_KEY as string,
         place_id: input,
       },
     });
+    console.log(req.data.result);
     if (!req) {
       throw new Error("Could not find restaurant details");
     }
