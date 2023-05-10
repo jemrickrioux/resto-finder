@@ -7,6 +7,7 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   MainBusinessCard,
   MainBusinessCard1,
+  ResultsBusinessCard,
 } from "~/components/MainBusinessCard";
 import { Results } from "~/context/resultsContext";
 import {
@@ -31,7 +32,17 @@ const Index: NextPage = () => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [change, setChange] = useState(false);
-  const { setChoices, choices, current, recommandation } = useContext(Results);
+  const {
+    setChoices,
+    nextChoice,
+    choices,
+    current,
+    recommandation,
+    isNextChoiceUsed,
+    resetChoices,
+    reset,
+    left,
+  } = useContext(Results);
   const [livraison, setLivraison] = useState(false);
   const [takeout, setTakeout] = useState(false);
   const business = useRandomizer(choices, livraison, takeout, change);
@@ -77,39 +88,89 @@ const Index: NextPage = () => {
         </div>
 
         <div className=" flex min-h-screen w-full flex-col items-center justify-center">
-          <section className={"flex w-full flex-col items-center text-center"}>
+          <section
+            className={
+              "flex w-full flex-col items-center text-center md:w-[800px]"
+            }
+          >
             <div className={"flex w-full flex-col items-end"}>
               {current && !recommandation && (
                 <>
+                  <h2
+                    className={
+                      "self-center font-anek text-xl text-primary md:text-4xl"
+                    }
+                  >
+                    {"'like' les restaurants que tu aimes"}
+                  </h2>
+                  <p
+                    className={
+                      "text-md self-center pb-4 font-anek text-primary md:text-xl"
+                    }
+                  >
+                    {"Après ça on va te dire ce que tu manges!"}
+                  </p>
+                  <p
+                    className={
+                      "text-md self-center pb-4 font-anek text-primary"
+                    }
+                  >
+                    {left} restaurants à trier
+                  </p>
                   <MainBusinessCard business={current} />
+                </>
+              )}
+              {recommandation && (
+                <>
+                  <h2
+                    className={
+                      "mb-4 self-start font-anek text-2xl text-primary"
+                    }
+                  >
+                    {"C'est décidé, tu manges là"}
+                  </h2>
+                  <ResultsBusinessCard business={recommandation} />
                   <div className={"flex w-full justify-between px-2 py-2"}>
-                    <div
-                      onClick={() => setChange(!change)}
-                      className={
-                        "group flex cursor-pointer items-center space-x-2 text-primary"
-                      }
-                    >
-                      <ArrowPathRoundedSquareIcon
+                    {!isNextChoiceUsed && (
+                      <div
+                        onClick={nextChoice}
                         className={
-                          "h-10 w-10 hover:transform group-hover:scale-110"
+                          "group flex cursor-pointer items-center space-x-2 text-primary"
                         }
-                      />
-                      <p className={"font-anek text-primary"}>Bof</p>
-                    </div>
+                      >
+                        <ArrowPathRoundedSquareIcon
+                          className={
+                            "h-10 w-10 hover:transform group-hover:scale-110"
+                          }
+                        />
+                        <p className={"font-anek text-primary"}>Bof</p>
+                      </div>
+                    )}
 
                     <div
-                      onClick={() => setChoices([])}
+                      onClick={() => {
+                        reset();
+                      }}
                       className={
                         "text-md h-full cursor-pointer items-center font-anek text-secondary transition hover:underline"
                       }
                     >
-                      Recommencer
+                      Faire un nouveau tri
                     </div>
                   </div>
                 </>
               )}
-              {recommandation && (
-                <MainBusinessCard1 business={recommandation} />
+              {business && (
+                <div
+                  onClick={() => {
+                    resetChoices();
+                  }}
+                  className={
+                    "text-md h-full cursor-pointer items-center font-anek text-secondary transition hover:underline"
+                  }
+                >
+                  Recommencer du début
+                </div>
               )}
             </div>
             <div className={"w-full"}>

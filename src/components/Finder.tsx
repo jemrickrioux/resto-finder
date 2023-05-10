@@ -45,6 +45,7 @@ export const Finder = () => {
   const getRestaurants = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
   const [livraison, setLivraison] = React.useState(false);
+  const [error, setError] = React.useState<null | string>(null);
   const [takeout, setTakeout] = React.useState(false);
   const distance = useContext(LocationData);
   const { setChoices } = useContext(Results);
@@ -59,6 +60,7 @@ export const Finder = () => {
         "mx-4 max-w-full rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:px-10 md:py-10"
       }
     >
+      <p className={"text-primary"}>{error}</p>
       <h2
         className={
           "bold py-6 text-left font-anek text-2xl font-bold uppercase text-primary md:text-4xl"
@@ -128,8 +130,12 @@ export const Finder = () => {
                   keyword: values.keyword.value,
                 };
           const restaurantData = await getRestaurants.mutateAsync(payload);
+
           setChoices(restaurantData);
           setSubmitting(false);
+          setError(null);
+          if (restaurantData.length === 0)
+            setError("Aucun résultat disponible");
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
@@ -170,9 +176,7 @@ export const Finder = () => {
             className={"flex max-w-full flex-col items-start space-y-2"}
           >
             <FieldGroup>
-              <Label htmlFor="priceLevel">
-                {"Tu met combien sur la table?"}
-              </Label>
+              <Label htmlFor="priceLevel">{"C'est quoi ton budget?"}</Label>
               <PriceLevelSelect
                 choices={[
                   { value: 1, label: "Pas gros | J'suis cheap en est!" },
@@ -187,7 +191,7 @@ export const Finder = () => {
             </FieldGroup>
             <FieldGroup>
               <Label htmlFor="distance">
-                {"Quel rayon on utilises pour la recherche?"}
+                {"Quel rayon (en km) on utilises pour la recherche?"}
               </Label>
               <DistanceSelect
                 choices={[
@@ -199,15 +203,15 @@ export const Finder = () => {
               />
             </FieldGroup>
             <FieldGroup>
-              <Label htmlFor="distance">
-                {"C'est quoi ton indispensable?"}
-              </Label>
+              <Label htmlFor="distance">{"As-tu une demande spéciale?"}</Label>
               <KeywordSelect
                 choices={[
                   { value: "bière", label: "Je veux de la broue" },
                   { value: "vin", label: "Je veux du vin" },
                   { value: "fast food", label: "D'la junk svp" },
                   { value: "poulet", label: "Poula!" },
+                  { value: "indien", label: "Indien!" },
+                  { value: "tacos", label: "Tacos 🌮" },
                 ]}
               />
             </FieldGroup>

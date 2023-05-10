@@ -68,6 +68,17 @@ export type RestoBusinessDetails = {
   phone: string;
   website: string;
   ratings: number;
+  url: string;
+  serves_wine: boolean;
+  serves_beer: boolean;
+  serves_dinner: boolean;
+  serves_lunch: boolean;
+  serves_breakfast: boolean;
+  serves_brunch: boolean;
+  reservable: boolean;
+  dine_in: boolean;
+  takeout: boolean;
+  delivery: boolean;
 };
 export type RestoBusiness = {
   id: string;

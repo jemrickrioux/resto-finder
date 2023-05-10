@@ -23,7 +23,7 @@ export const BaseLayout = ({
       <div className={"flex h-full w-full flex-col overflow-y-hidden"}>
         {error && <HelloBar message={error} />}
         <main
-          className={`bg-hero flex h-full min-h-screen w-full flex-col items-center justify-center bg-accent bg-hero-i-like-food `}
+          className={`bg-hero flex h-full min-h-screen w-full flex-col items-center justify-center bg-accent px-4 bg-hero-i-like-food`}
         >
           {children}
         </main>

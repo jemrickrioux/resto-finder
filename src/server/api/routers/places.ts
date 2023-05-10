@@ -2,7 +2,8 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { Blob } from "next/dist/compiled/@edge-runtime/primitives/blob";
 import type { Place as DBPlace } from "@prisma/client";
-
+import * as fuzz from "fuzzball";
+import _ from "lodash";
 import {
   Client,
   Language,
@@ -47,7 +48,6 @@ export const placesRouter = createTRPCRouter({
       if (!req) {
         throw new Error("Could not find any restaurants");
       }
-      console.log("res", req.data.results, "res end");
 
       const results: RestoBusiness[] = req.data.results.map((result) => {
         return {
@@ -73,7 +73,12 @@ export const placesRouter = createTRPCRouter({
         };
       });
 
-      return results;
+      const uniques = _.uniqWith(results.reverse(), (value, other) => {
+        const ratio = fuzz.ratio(value.name, other.name);
+        return ratio > 60;
+      });
+
+      return uniques;
     }),
   photo: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const req: PlacePhotoResponse = await client.placePhoto({
@@ -107,12 +112,37 @@ export const placesRouter = createTRPCRouter({
     if (!req) {
       throw new Error("Could not find restaurant details");
     }
-    const parsedResult: Partial<PlaceData> = req.data.result;
-    const results: RestoBusinessDetails = {
-      id: req.data.result.place_id!,
-      phone: req.data.result.international_phone_number!,
-      website: req.data.result.website!,
-      ratings: req.data.result.rating!,
+    console.log("req", req.data.result);
+    const parsedResult: Partial<
+      PlaceData & {
+        delivery: boolean;
+        dine_in: boolean;
+        takeout: boolean;
+        serves_beer: boolean;
+        serves_wine: boolean;
+        serves_breakfast: boolean;
+        serves_lunch: boolean;
+        serves_dinner: boolean;
+        serves_brunch: boolean;
+        reservable: boolean;
+      }
+    > = req.data.result;
+    const results: Partial<RestoBusinessDetails> = {
+      id: parsedResult.place_id,
+      phone: parsedResult.international_phone_number,
+      website: parsedResult.website,
+      ratings: parsedResult.rating,
+      url: parsedResult.url,
+      delivery: parsedResult.delivery,
+      dine_in: parsedResult.dine_in,
+      takeout: parsedResult.takeout,
+      serves_beer: parsedResult.serves_beer,
+      serves_wine: parsedResult.serves_wine,
+      serves_breakfast: parsedResult.serves_breakfast,
+      serves_lunch: parsedResult.serves_lunch,
+      serves_dinner: parsedResult.serves_dinner,
+      serves_brunch: parsedResult.serves_brunch,
+      reservable: parsedResult.reservable,
     };
     return results;
   }),

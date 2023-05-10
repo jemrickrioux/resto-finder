@@ -29,6 +29,7 @@
     "@trpc/server": "^10.18.0",
     "axios": "^1.4.0",
     "formik": "^2.2.9",
+    "fuzzball": "^2.1.2",
     "next": "13.3.4",
     "next-auth": "^4.21.0",
     "react": "18.2.0",
