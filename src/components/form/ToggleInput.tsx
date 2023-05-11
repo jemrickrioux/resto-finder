@@ -5,9 +5,6 @@ import {
   CircleRounded,
   SvgIconComponent,
 } from "@mui/icons-material";
-import { ReactComponentLike } from "prop-types";
-import { OverridableComponent } from "@mui/types";
-import { SvgIcon } from "@mui/material";
 
 export function ToggleInput({
   handler,

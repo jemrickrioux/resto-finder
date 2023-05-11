@@ -27,9 +27,11 @@ export const placesRouter = createTRPCRouter({
         longitude: z.number().optional(),
         distance: z.number(),
         keyword: z.string().optional(),
+        takeout: z.boolean().default(false),
+        livraison: z.boolean().default(false),
       })
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const req =
         input.latitude !== undefined &&
         input.longitude !== undefined &&
@@ -40,7 +42,7 @@ export const placesRouter = createTRPCRouter({
             key: process.env.GOOGLE_PLACES_API_KEY as string,
             radius: input.distance,
             location: `${input.latitude.toString()},${input.longitude.toString()}`,
-            //opennow: true,
+            opennow: process.env.NODE_ENV === "production" ? true : undefined,
             keyword: input.keyword !== undefined ? input.keyword : "",
             maxprice: input.priceLevel,
           },
@@ -77,6 +79,26 @@ export const placesRouter = createTRPCRouter({
         const ratio = fuzz.ratio(value.name, other.name);
         return ratio > 60;
       });
+
+      if (input.takeout && input.livraison) {
+        return uniques.filter((result) => {
+          return (
+            result.types.includes("meal_takeaway") ||
+            result.types.includes("meal_delivery")
+          );
+        });
+      }
+      if (input.takeout) {
+        return uniques.filter((result) => {
+          return result.types.includes("meal_takeaway");
+        });
+      }
+      if (input.livraison) {
+        return uniques.filter((result) => {
+          console.log(result);
+          return result.types.includes("meal_delivery");
+        });
+      }
 
       return uniques;
     }),

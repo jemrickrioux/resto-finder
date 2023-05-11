@@ -7,7 +7,7 @@ import {
 } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "~/components/Button";
-import { FieldGroup, Label } from "~/components/Finder";
+import { FieldGroup, Label } from "~/components/form/FormItems";
 import { LocationData } from "~/context/locationContext";
 import { api } from "~/utils/api";
 

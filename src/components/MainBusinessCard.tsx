@@ -6,6 +6,8 @@ import {
   HandThumbUpIcon,
   HandThumbDownIcon,
   CurrencyDollarIcon,
+  ArrowRightIcon,
+  CheckIcon,
 } from "@heroicons/react/24/solid";
 
 import { api } from "~/utils/api";
@@ -14,13 +16,18 @@ import {
   DeliveryDiningRounded,
   TakeoutDiningRounded,
   SvgIconComponent,
+  Tune,
+  TuneRounded,
+  RestartAltRounded,
+  ShuffleRounded,
+  ChangeCircleRounded,
+  PlusOneRounded,
 } from "@mui/icons-material";
 import React, { ReactNode, useContext, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { RestoBusiness, RestoBusinessDetails } from "~/types/types";
 import { ReactComponentLike } from "prop-types";
-import LocationContext, { LocationData } from "~/context/locationContext";
 import { Results } from "~/context/resultsContext";
+import { Button } from "~/components/Button";
 
 const IconList = ({
   number,
@@ -37,10 +44,10 @@ const IconList = ({
   return (
     <div className={"flex w-max items-center space-x-1"}>
       {stars.map((star: number) => (
-        <Icon key={star} className={" h-6 w-6 text-primary"} />
+        <Icon key={star} className={" h-5 w-5 text-primary"} />
       ))}
       {max.map((star: number) => (
-        <Icon key={star} className={" h-6 w-6 text-gray-200"} />
+        <Icon key={star} className={" h-5 w-5 text-gray-200"} />
       ))}
     </div>
   );
@@ -102,7 +109,11 @@ const TinderLikeIcon = ({
   );
 };
 
-export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
+export const TinderBusinessCard = ({
+  business,
+}: {
+  business: RestoBusiness;
+}) => {
   const { addDisliked, addLiked } = useContext(Results);
 
   const handleLike = () => {
@@ -151,8 +162,154 @@ export const MainBusinessCard = ({ business }: { business: RestoBusiness }) => {
     </div>
   );
 };
+const PrimaryAction = ({
+  text,
+  action,
+  Icon = ArrowRightIcon,
+}: {
+  text: string;
+  Icon: typeof SportsBarRounded | typeof MapPinIcon;
+  action: () => void;
+}) => {
+  return (
+    <div
+      onClick={action}
+      className={`col-span-2 flex items-center justify-center space-x-2 rounded-md border-2 border-primary bg-primary/80 px-2 py-2  text-main `}
+    >
+      <Icon className={"h-4 w-4"}></Icon>
+      <h3 className={"text-md"}>{text}</h3>
+    </div>
+  );
+};
+
+const SecondaryAction = ({
+  text,
+  Icon = ArrowRightIcon,
+  action,
+}: {
+  text: string;
+  Icon: typeof SportsBarRounded | typeof MapPinIcon;
+  action: () => void;
+}) => {
+  return (
+    <div
+      onClick={action}
+      className={`flex cursor-pointer items-center justify-start space-x-2 px-2 py-1 text-gray-300 hover:text-primary`}
+    >
+      <Icon className={"h-4 w-4"}></Icon>
+      <h3 className={"text-[10px]"}>{text}</h3>
+    </div>
+  );
+};
 
 export const ResultsBusinessCard = ({
+  business,
+}: {
+  business: RestoBusiness;
+}) => {
+  const {
+    resetChoices,
+    isNextChoiceUsed,
+    handleRestaurantSelection,
+    nextChoice,
+    choices,
+  } = useContext(Results);
+  const photo = business.image
+    ? api.places.photo.useQuery(business.image, {
+        refetchOnWindowFocus: false,
+        refetchInterval: false,
+        staleTime: Infinity,
+      })
+    : "https://picsum.photos/600/250";
+
+  const details = api.places.details.useQuery<RestoBusinessDetails>(
+    business.id,
+    {
+      refetchOnWindowFocus: false,
+      refetchInterval: false,
+      staleTime: Infinity,
+    }
+  );
+
+  return (
+    <>
+      <div
+        className={
+          "rounded-lg border-2 border-main bg-main font-anek text-primary text-primary"
+        }
+      >
+        <img
+          src={typeof photo === "string" ? photo : photo.data}
+          alt={business.name}
+          className={
+            "relative h-[200px] w-screen rounded-t-lg object-cover md:h-[600px] md:w-[1200px]"
+          }
+        />
+        <div
+          className={
+            "mt-4 flex w-full items-center px-6  text-xl font-bold md:text-3xl"
+          }
+        >
+          {business.name}
+        </div>
+        <div
+          className={
+            "bold flex w-full flex-col justify-between space-y-2 px-6 py-4 text-left font-anek md:flex-row md:space-y-0"
+          }
+        >
+          <div className={"mb-4 flex flex-col space-y-2"}>
+            <div className={"flex space-x-2"}>
+              {details.data && (
+                <IconList
+                  type={"star"}
+                  Icon={StarIcon}
+                  number={business.rating}
+                />
+              )}
+            </div>
+            {details.data && (
+              <IconList
+                type={"price"}
+                Icon={CurrencyDollarIcon}
+                number={business.priceLevel}
+              />
+            )}
+          </div>
+          <div className={""}>
+            <PrimaryAction
+              action={handleRestaurantSelection}
+              text={"VOILÀ. Je choisis ça"}
+              Icon={CheckIcon}
+            />
+          </div>
+          <div
+            className={
+              "text-xs font-light text-gray-200 hover:text-primary hover:underline"
+            }
+          >
+            {"Signaler mon mécontentement"}
+          </div>
+        </div>
+      </div>
+      <div className={"flex w-full justify-between"}>
+        {!isNextChoiceUsed && choices.length > 1 && (
+          <SecondaryAction
+            text={"Donne moi 1 choix de plus. pls"}
+            Icon={PlusOneRounded}
+            action={nextChoice}
+          />
+        )}
+        <SecondaryAction
+          action={resetChoices}
+          text={"Recommencer"}
+          Icon={RestartAltRounded}
+        />
+      </div>
+    </>
+  );
+};
+
+export const DetailedBusinessCard = ({
   business,
 }: {
   business: RestoBusiness;
@@ -256,145 +413,6 @@ export const ResultsBusinessCard = ({
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-};
-
-export const MainBusinessCard1 = ({
-  business,
-}: {
-  business: RestoBusiness;
-}) => {
-  const addPlace = api.places.addPlace.useMutation();
-
-  const photo = business.image
-    ? api.places.photo.useQuery(business.image, {
-        refetchOnWindowFocus: false,
-        refetchInterval: false,
-        staleTime: Infinity,
-      })
-    : "https://picsum.photos/600/250";
-
-  const details = api.places.details.useQuery<RestoBusinessDetails>(
-    business.id,
-    {
-      refetchOnWindowFocus: false,
-      refetchInterval: false,
-      staleTime: Infinity,
-    }
-  );
-  useEffect(() => {
-    if (details.data) {
-      const { id, ...restBusiness } = business;
-      /*addPlace.mutate({
-          ...restBusiness,
-          ...details.data,
-          googlePlaceId: business.id,
-          lat: business.coordinates.lat,
-          lng: business.coordinates.lng,
-        });*/
-    }
-  }, [details.data]);
-
-  return (
-    <div
-      className={
-        "relative flex flex-col justify-center rounded-lg border-2 border-primary bg-white/50 shadow-xl"
-      }
-    >
-      <img
-        src={typeof photo === "string" ? photo : photo.data}
-        alt={business.name}
-        className={
-          "relative h-[400px] w-screen rounded-t-lg object-cover md:h-[600px] md:w-[1200px]"
-        }
-      />
-      <div className={"absolute right-4 top-4 z-10"}>
-        <Badge text={business.distance.toFixed(2) + "km"} Icon={MapPinIcon} />
-      </div>
-      <div
-        className={
-          "absolute left-4 top-4 z-10 space-y-1 rounded-md font-anek text-sm font-bold"
-        }
-      >
-        <BadgeList business={business} />
-      </div>
-      <div className={"absolute bottom-0 left-0 right-0 z-10"}>
-        <div
-          className={
-            "bold flex w-full flex-col justify-between space-y-2 bg-primary px-6 py-4 text-left font-anek uppercase text-secondary md:flex-row md:space-y-0"
-          }
-        >
-          <div>
-            <div
-              className={
-                "flex w-full items-center justify-center overflow-hidden text-ellipsis text-xl font-bold text-main md:text-3xl"
-              }
-            >
-              {business.name}
-            </div>
-            <div className={"flex space-x-2"}>
-              {details.data && (
-                <IconList
-                  type={"star"}
-                  Icon={StarIcon}
-                  number={business.rating}
-                />
-              )}
-              <div className={"align-self-end text-sm text-main"}>
-                {business.numberOfRatings} avis
-              </div>
-            </div>
-            {details.data && (
-              <IconList
-                type={"price"}
-                Icon={CurrencyDollarIcon}
-                number={business.priceLevel}
-              />
-            )}
-          </div>
-          {details.data && (
-            <div className={"flex flex-col space-y-2"}>
-              <div
-                className={
-                  "flex cursor-pointer space-x-2 text-xl text-main hover:underline"
-                }
-              >
-                <MapPinIcon className={"h-6 w-6"} />
-                <a
-                  target="__blank__"
-                  href={details.data.url}
-                  className={
-                    "flex cursor-pointer space-x-2 text-xl text-main hover:underline"
-                  }
-                >
-                  {business.address}
-                </a>
-              </div>
-              <div
-                className={"items center flex w-full space-x-2 md:justify-end"}
-              >
-                <a target={"__blank__"} href={details.data.website}>
-                  <LinkIcon
-                    className={
-                      "h-8 w-8 cursor-pointer text-main hover:text-secondary"
-                    }
-                  ></LinkIcon>
-                </a>
-                {details.data.phone && (
-                  <a href={`tel:${details.data.phone}`}>
-                    <PhoneIcon
-                      className={
-                        "h-8 w-8 cursor-pointer text-main hover:text-secondary"
-                      }
-                    ></PhoneIcon>
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
