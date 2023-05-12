@@ -36,7 +36,6 @@
     "next-auth": "^4.21.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-ga4": "^2.1.0",
     "react-google-places-autocomplete": "^4.0.1",
     "superjson": "1.12.2",
     "use-local-storage": "^3.0.0",

@@ -15,19 +15,13 @@ import {
   SportsBarRounded,
   DeliveryDiningRounded,
   TakeoutDiningRounded,
-  SvgIconComponent,
-  Tune,
-  TuneRounded,
   RestartAltRounded,
-  ShuffleRounded,
-  ChangeCircleRounded,
   PlusOneRounded,
 } from "@mui/icons-material";
 import React, { ReactNode, useContext, useEffect } from "react";
 import { RestoBusiness, RestoBusinessDetails } from "~/types/types";
 import { ReactComponentLike } from "prop-types";
 import { Results } from "~/context/resultsContext";
-import { Button } from "~/components/Button";
 
 const IconList = ({
   number,

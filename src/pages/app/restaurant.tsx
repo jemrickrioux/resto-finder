@@ -1,10 +1,6 @@
-import { BaseLayout } from "~/layouts/BaseLayout";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { Results } from "~/context/resultsContext";
-import { LocationData } from "~/context/locationContext";
-import ReactGA from "react-ga4";
 import { DetailedBusinessCard } from "~/components/MainBusinessCard";
 import { AppLayout } from "~/layouts/AppLayout";
 import { useRedirects } from "~/hooks/useRedirects";

@@ -1,27 +1,10 @@
 import { type NextPage } from "next";
-import Head from "next/head";
-
 import { Finder } from "~/components/Finder";
-import { SkeletonFinder } from "~/components/SkeletonFinder";
-import React, { useContext, useEffect, useState } from "react";
-
+import React, { useContext, useState } from "react";
 import { Results } from "~/context/resultsContext";
-import { signIn, useSession } from "next-auth/react";
-
 import { Modal } from "~/components/Modal";
-
-import ReactGA from "react-ga4";
-import dynamic from "next/dynamic";
 import { AppLayout } from "~/layouts/AppLayout";
-
 import { Button } from "~/components/Button";
-import { LocationData } from "~/context/locationContext";
-import { useRouter } from "next/router";
-import {
-  DownloadingRounded,
-  HourglassBottom,
-  LoopRounded,
-} from "@mui/icons-material";
 import { Loading } from "~/components/Loading";
 import { useRedirects } from "~/hooks/useRedirects";
 

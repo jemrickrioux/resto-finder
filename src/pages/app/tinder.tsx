@@ -1,23 +1,12 @@
-import { BaseLayout } from "~/layouts/BaseLayout";
 import { NextPage } from "next";
-import { useSession } from "next-auth/react";
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { Results } from "~/context/resultsContext";
-import { LocationData } from "~/context/locationContext";
-import ReactGA from "react-ga4";
-import {
-  DetailedBusinessCard,
-  TinderBusinessCard,
-} from "~/components/MainBusinessCard";
-import { Button } from "~/components/Button";
+import { TinderBusinessCard } from "~/components/MainBusinessCard";
 import { AppLayout } from "~/layouts/AppLayout";
 import { Loading } from "~/components/Loading";
-import { useRouter } from "next/router";
 import { useRedirects } from "~/hooks/useRedirects";
 
 const Tinder: NextPage = () => {
-  const { data: session } = useSession();
-  const router = useRouter();
   const { liked, disliked, choices, recommandation, restaurantChoice } =
     useContext(Results);
 
