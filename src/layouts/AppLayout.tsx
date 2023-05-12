@@ -69,6 +69,7 @@ export const AppLayout = ({
     });
   }, []);
   const distance = useContext(LocationData);
+  const results = useContext(Results);
 
   return (
     <>
@@ -82,7 +83,10 @@ export const AppLayout = ({
           "bg-hero flex h-screen w-full flex-col justify-center space-y-8 overflow-y-hidden bg-accent px-4 bg-hero-i-like-food md:items-center"
         }
       >
-        {distance.error && <HelloBar message={distance.error} />}
+        {distance.error ||
+          (results.error && (
+            <HelloBar message={distance.error || results.error} />
+          ))}
         <AppBar />
         <div className={"flex h-full flex-col items-center justify-center"}>
           {children}

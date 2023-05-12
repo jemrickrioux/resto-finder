@@ -38,6 +38,7 @@ export const Results = createContext(
     isNextChoiceUsed: boolean;
     nextChoice: () => void;
     handleRestaurantSelection: () => void;
+    error: string | null;
   }
 );
 
@@ -48,6 +49,7 @@ type ResultsData = {
   restaurantChoice: RestoBusiness | undefined;
   recommandation: RestoBusiness | undefined;
   isNextChoiceUsed: boolean;
+  error: string | null;
 };
 
 const ResultsContext = (props: { children: React.ReactNode }) => {
@@ -74,6 +76,11 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
   const [restaurantChoice, setRestaurantChoice] = useLocalStorage<
     RestoBusiness | undefined
   >("restaurantChoice", undefined);
+
+  const [error, setError] = useLocalStorage<string | null>(
+    "restaurantError",
+    null
+  );
 
   const router = useRouter();
 
@@ -104,8 +111,14 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
       });
       setDisliked((disliked) => [...disliked, current]);
     }
-    if (choices.length === 1) {
+    if (choices.length === 1 && liked.length > 0) {
+      setError(null);
       findRecommandation();
+    } else if (choices.length === 1) {
+      setChoices((_prev) => [...disliked, ...liked, current]);
+      setDisliked([]);
+      setLiked([]);
+      setError("Come on bigue!... Tu dois aimer au moins un restaurant!");
     }
   };
 
@@ -164,6 +177,7 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
         disliked,
         recommandation,
         resetChoices,
+        error,
       }}
     >
       {props.children}

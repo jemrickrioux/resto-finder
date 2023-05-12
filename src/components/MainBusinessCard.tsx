@@ -114,7 +114,7 @@ export const TinderBusinessCard = ({
 }: {
   business: RestoBusiness;
 }) => {
-  const { handleLike } = useContext(Results);
+  const { handleLike, error } = useContext(Results);
 
   return (
     <div

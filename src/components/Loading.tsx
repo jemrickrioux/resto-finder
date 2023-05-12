@@ -1,7 +1,18 @@
 import { LoopRounded } from "@mui/icons-material";
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { Results } from "~/context/resultsContext";
 
 export const Loading = () => {
+  const [isTooLong, setIsTooLong] = React.useState(false);
+  const { resetChoices } = useContext(Results);
+  //useEffect that will set is too long after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsTooLong(true);
+      resetChoices();
+    }, 5000);
+    return () => clearTimeout(timer);
+  });
   return (
     <div
       className={
@@ -17,6 +28,9 @@ export const Loading = () => {
         ></LoopRounded>
       </div>
       <h3 className={"animate-pulse bg-accent/60"}>{"Let him cook..."}</h3>
+      {isTooLong && (
+        <h3 className={" bg-accent/60"}>{"Haha.. sorry. C't'un peu long."}</h3>
+      )}
     </div>
   );
 };
