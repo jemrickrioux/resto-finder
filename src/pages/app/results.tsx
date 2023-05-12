@@ -11,29 +11,17 @@ import {
 } from "~/components/MainBusinessCard";
 import { Button } from "~/components/Button";
 import { AppLayout } from "~/layouts/AppLayout";
+import { useRouter } from "next/router";
+import { useRedirects } from "~/hooks/useRedirects";
 
 const Result: NextPage = () => {
   const { data: session } = useSession();
-  const {
-    nextChoice,
-    choices,
-    current,
-    recommandation,
-    isNextChoiceUsed,
-    restaurantChoice,
-    resetChoices,
-    reset,
-  } = useContext(Results);
+  const router = useRouter();
+  const { choices, recommandation, restaurantChoice, liked, disliked } =
+    useContext(Results);
 
-  const distance = useContext(LocationData);
-
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/app",
-      title: "App",
-    });
-  });
+  useRedirects();
+  const totalLength = choices.length + liked.length + disliked.length;
 
   return (
     <AppLayout
@@ -48,7 +36,7 @@ const Result: NextPage = () => {
                 "mb-4 self-start font-anek text-2xl font-medium uppercase text-primary"
               }
             >
-              {choices.length > 1
+              {totalLength > 1
                 ? "C'est décidé, tu manges là"
                 : "Bon, ben y'a juste ça... sorry"}
             </h2>

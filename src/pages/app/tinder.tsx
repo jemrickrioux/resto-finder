@@ -11,30 +11,18 @@ import {
 } from "~/components/MainBusinessCard";
 import { Button } from "~/components/Button";
 import { AppLayout } from "~/layouts/AppLayout";
+import { Loading } from "~/components/Loading";
+import { useRouter } from "next/router";
+import { useRedirects } from "~/hooks/useRedirects";
 
 const Tinder: NextPage = () => {
   const { data: session } = useSession();
-  const {
-    nextChoice,
-    choices,
-    current,
-    recommandation,
-    isNextChoiceUsed,
-    restaurantChoice,
-    resetChoices,
-    left,
-    reset,
-  } = useContext(Results);
+  const router = useRouter();
+  const { liked, disliked, choices, recommandation, restaurantChoice } =
+    useContext(Results);
 
   const distance = useContext(LocationData);
-
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/app",
-      title: "App",
-    });
-  });
+  useRedirects();
 
   return (
     <AppLayout
@@ -42,7 +30,7 @@ const Tinder: NextPage = () => {
       description={"Trouves ton lunch!"}
     >
       <div className={"flex w-full flex-col"}>
-        {current && !recommandation && choices.length > 0 && (
+        {choices[0] && !recommandation && choices.length > 0 && (
           <>
             <h2
               className={
@@ -59,11 +47,13 @@ const Tinder: NextPage = () => {
               {"Après ça on va te dire ce que tu manges!"}
             </p>
             <p className={"text-md self-center pb-4 font-anek text-primary"}>
-              {left} restaurants à trier
+              {choices.length} restaurants à trier
             </p>
-            <TinderBusinessCard business={current} />
+
+            <TinderBusinessCard business={choices[0]} />
           </>
         )}
+        {choices.length === 0 && !recommandation && <Loading />}
       </div>
     </AppLayout>
   );

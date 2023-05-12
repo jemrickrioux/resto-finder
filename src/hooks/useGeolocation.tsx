@@ -27,5 +27,6 @@ export const useGeoLocation = (
         }
       );
     }
+    setLoading(false);
   }, []);
 };

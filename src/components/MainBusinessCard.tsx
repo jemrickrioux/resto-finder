@@ -114,14 +114,7 @@ export const TinderBusinessCard = ({
 }: {
   business: RestoBusiness;
 }) => {
-  const { addDisliked, addLiked } = useContext(Results);
-
-  const handleLike = () => {
-    addLiked(business);
-  };
-  const handleDislike = () => {
-    addDisliked(business);
-  };
+  const { handleLike } = useContext(Results);
 
   return (
     <div
@@ -130,7 +123,7 @@ export const TinderBusinessCard = ({
       }
     >
       <div className={"flex flex-col justify-center"}>
-        <TinderLikeIcon type={"DISLIKE"} action={handleDislike} />
+        <TinderLikeIcon type={"DISLIKE"} action={() => handleLike("DISLIKE")} />
       </div>
       <div className={"flex w-full flex-col justify-center "}>
         <div
@@ -157,7 +150,7 @@ export const TinderBusinessCard = ({
         </div>
       </div>
       <div className={"flex flex-col justify-center"}>
-        <TinderLikeIcon type={"LIKE"} action={handleLike} />
+        <TinderLikeIcon type={"LIKE"} action={() => handleLike("LIKE")} />
       </div>
     </div>
   );
@@ -212,7 +205,7 @@ export const ResultsBusinessCard = ({
     isNextChoiceUsed,
     handleRestaurantSelection,
     nextChoice,
-    choices,
+    liked,
   } = useContext(Results);
   const photo = business.image
     ? api.places.photo.useQuery(business.image, {
@@ -292,7 +285,7 @@ export const ResultsBusinessCard = ({
         </div>
       </div>
       <div className={"flex w-full justify-between"}>
-        {!isNextChoiceUsed && choices.length > 1 && (
+        {!isNextChoiceUsed && liked.length > 1 && (
           <SecondaryAction
             text={"Donne moi 1 choix de plus. pls"}
             Icon={PlusOneRounded}
@@ -330,90 +323,107 @@ export const DetailedBusinessCard = ({
       staleTime: Infinity,
     }
   );
-
+  const { isNextChoiceUsed, resetChoices, nextChoice, liked } =
+    useContext(Results);
   return (
-    <div
-      className={
-        "rounded-lg border-2 border-main bg-main font-anek text-primary text-primary"
-      }
-    >
-      <img
-        src={typeof photo === "string" ? photo : photo.data}
-        alt={business.name}
-        className={
-          "relative h-[200px] w-screen rounded-t-lg object-cover md:h-[600px] md:w-[1200px]"
-        }
-      />
+    <>
       <div
         className={
-          "my-4 flex w-full items-center px-6  text-xl font-bold md:text-3xl"
+          "rounded-lg border-2 border-main bg-main font-anek text-primary text-primary"
         }
       >
-        {business.name}
-      </div>
-      <div
-        className={
-          "bold flex w-full flex-col justify-between space-y-2 px-6 py-4 text-left font-anek md:flex-row md:space-y-0"
-        }
-      >
-        <div>
-          <div className={"flex space-x-2"}>
+        <img
+          src={typeof photo === "string" ? photo : photo.data}
+          alt={business.name}
+          className={
+            "relative h-[200px] w-screen rounded-t-lg object-cover md:h-[600px] md:w-[1200px]"
+          }
+        />
+        <div
+          className={
+            "my-4 flex w-full items-center px-6  text-xl font-bold md:text-3xl"
+          }
+        >
+          {business.name}
+        </div>
+        <div
+          className={
+            "bold flex w-full flex-col justify-between space-y-2 px-6 py-4 text-left font-anek md:flex-row md:space-y-0"
+          }
+        >
+          <div>
+            <div className={"flex space-x-2"}>
+              {details.data && (
+                <IconList
+                  type={"star"}
+                  Icon={StarIcon}
+                  number={business.rating}
+                />
+              )}
+              <div className={"align-self-end text-sm"}>
+                {business.numberOfRatings} avis
+              </div>
+            </div>
             {details.data && (
               <IconList
-                type={"star"}
-                Icon={StarIcon}
-                number={business.rating}
+                type={"price"}
+                Icon={CurrencyDollarIcon}
+                number={business.priceLevel}
               />
             )}
-            <div className={"align-self-end text-sm"}>
-              {business.numberOfRatings} avis
-            </div>
           </div>
           {details.data && (
-            <IconList
-              type={"price"}
-              Icon={CurrencyDollarIcon}
-              number={business.priceLevel}
-            />
-          )}
-        </div>
-        {details.data && (
-          <div className={"flex flex-col space-y-2"}>
-            <div
-              className={
-                "flex cursor-pointer space-x-2 text-xl hover:underline"
-              }
-            >
-              <MapPinIcon className={"h-6 w-6"} />
-              <a
-                target="__blank__"
-                href={details.data.url}
+            <div className={"flex flex-col space-y-2"}>
+              <div
                 className={
                   "flex cursor-pointer space-x-2 text-xl hover:underline"
                 }
               >
-                {business.address}
-              </a>
-            </div>
-            <div
-              className={"items center flex w-full space-x-2 md:justify-end"}
-            >
-              <a target={"__blank__"} href={details.data.website}>
-                <LinkIcon
-                  className={"h-8 w-8 cursor-pointer hover:text-secondary"}
-                ></LinkIcon>
-              </a>
-              {details.data.phone && (
-                <a href={`tel:${details.data.phone}`}>
-                  <PhoneIcon
-                    className={"h-8 w-8 cursor-pointer hover:text-secondary"}
-                  ></PhoneIcon>
+                <MapPinIcon className={"h-6 w-6"} />
+                <a
+                  target="__blank__"
+                  href={details.data.url}
+                  className={
+                    "flex cursor-pointer space-x-2 text-xl hover:underline"
+                  }
+                >
+                  {business.address}
                 </a>
-              )}
+              </div>
+              <div
+                className={"items center flex w-full space-x-2 md:justify-end"}
+              >
+                <a target={"__blank__"} href={details.data.website}>
+                  <LinkIcon
+                    className={"h-8 w-8 cursor-pointer hover:text-secondary"}
+                  ></LinkIcon>
+                </a>
+                {details.data.phone && (
+                  <a href={`tel:${details.data.phone}`}>
+                    <PhoneIcon
+                      className={"h-8 w-8 cursor-pointer hover:text-secondary"}
+                    ></PhoneIcon>
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+      <div className={"flex w-full justify-between"}>
+        {!isNextChoiceUsed && liked.length > 1 && (
+          <SecondaryAction
+            text={"Donne moi 1 choix de plus. pls"}
+            Icon={PlusOneRounded}
+            action={nextChoice}
+          />
+        )}
+        <SecondaryAction
+          action={resetChoices}
+          text={"Recommencer"}
+          Icon={RestartAltRounded}
+        />
+      </div>
+    </>
   );
 };

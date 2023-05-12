@@ -7,7 +7,6 @@ import _ from "lodash";
 import {
   Client,
   Language,
-  Place,
   PlaceData,
   PlacePhotoResponse,
 } from "@googlemaps/google-maps-services-js";

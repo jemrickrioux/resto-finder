@@ -103,7 +103,7 @@ export const Finder = () => {
           handleChoices(restaurantData);
           setSubmitting(false);
           setError(null);
-          void router.push("/tinder");
+          void router.push("/app/tinder");
           if (restaurantData.length === 0)
             setError("Aucun résultat disponible");
         }}

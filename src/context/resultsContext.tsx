@@ -3,7 +3,7 @@ import { RestoBusiness } from "~/types/types";
 import _ from "lodash";
 import { router } from "next/client";
 import { useRouter } from "next/router";
-import useLocalStorage from "uselocalstoragenextjs";
+import useLocalStorage from "~/hooks/useLocalStorage";
 
 type ResultsContextType = {
   choices: RestoBusiness[];
@@ -19,6 +19,7 @@ type ResultsContextType = {
   resetChoices: () => void;
   isNextChoiceUsed: boolean;
   nextChoice: () => void;
+  findRecommandation: () => void;
   handleRestaurantSelection: () => void;
   reset: () => void;
 };
@@ -28,18 +29,16 @@ export const Results = createContext(
     choices: RestoBusiness[];
     liked: RestoBusiness[];
     disliked: RestoBusiness[];
-    restaurantChoice: RestoBusiness | undefined;
+    restaurantChoice?: RestoBusiness;
     handleChoices: (choices: RestoBusiness[]) => void;
-    addLiked: (resto: RestoBusiness) => void;
-    addDisliked: (resto: RestoBusiness) => void;
-    current: RestoBusiness | undefined;
-    recommandation: RestoBusiness | undefined;
+    handleLike: (type: "LIKE" | "DISLIKE") => void;
+    recommandation?: RestoBusiness;
     reset: () => void;
+    findRecommandation: () => void;
     resetChoices: () => void;
     isNextChoiceUsed: boolean;
     nextChoice: () => void;
     handleRestaurantSelection: () => void;
-    left: number;
   }
 );
 
@@ -48,85 +47,73 @@ type ResultsData = {
   liked: RestoBusiness[];
   disliked: RestoBusiness[];
   restaurantChoice: RestoBusiness | undefined;
-  current: RestoBusiness | undefined;
   recommandation: RestoBusiness | undefined;
   isNextChoiceUsed: boolean;
-  left: number;
 };
 
 const ResultsContext = (props: { children: React.ReactNode }) => {
-  const {
-    value, //Value of element in localStorage
-    setLocalStorage, //function for modify localStorage
-    load, //if the value has been loaded or not
-  } = useLocalStorage<ResultsData>({
-    name: "results",
-    updateValue(oldValue: ResultsData, newValue: ResultsData) {
-      return {
-        ...newValue,
-      };
-    },
-    //name of element in localStorage
-  });
-  const [choices, setChoices] = useState(
-    value?.choices || ([] as RestoBusiness[])
+  const [choices, setChoices] = useLocalStorage<RestoBusiness[]>(
+    "choices",
+    [] as RestoBusiness[]
   );
-  const [liked, setLiked] = useState([] as RestoBusiness[]);
-  const [disliked, setDisliked] = useState([] as RestoBusiness[]);
-  const [isNextChoiceUsed, setIsNextChoiceUsed] = useState(false);
-  const [recommandation, setRecommandation] = useState(value?.recommandation);
-  const [restaurantChoice, setRestaurantChoice] = useState(
-    value?.restaurantChoice
+  const [liked, setLiked] = useLocalStorage<RestoBusiness[]>(
+    "liked",
+    [] as RestoBusiness[]
   );
+  const [disliked, setDisliked] = useLocalStorage<RestoBusiness[]>(
+    "disliked",
+    [] as RestoBusiness[]
+  );
+  const [isNextChoiceUsed, setIsNextChoiceUsed] = useLocalStorage<boolean>(
+    "isNextChoiceUsed",
+    false
+  );
+  const [recommandation, setRecommandation] = useLocalStorage<
+    RestoBusiness | undefined
+  >("recommandation", undefined);
+
+  const [restaurantChoice, setRestaurantChoice] = useLocalStorage<
+    RestoBusiness | undefined
+  >("restaurantChoice", undefined);
+
   const router = useRouter();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const findRecommandation = () => {
-    const random = _.random(liked.length);
-    void router.push("/results");
+    const random = _.random(liked.length - 1);
+    console.log(`Random: ${random}
+    Length: ${liked.length}`);
+    if (liked[random] === undefined) return;
     setRecommandation(liked[random]);
+    void router.push("/app/results");
   };
 
-  const handleIndex = () => {
-    if (currentIndex === choices.length - 1) {
-      findRecommandation();
-    } else {
-      setCurrentIndex((prevState) => prevState + 1);
+  const handleLike = (type: "LIKE" | "DISLIKE") => {
+    const current = choices[0] as RestoBusiness;
+
+    setChoices((choices) => choices.slice(1));
+    if (type === "LIKE") {
+      setLiked((liked) => [...liked, current]);
     }
-    setLocalStorage({
-      choices,
-      liked,
-      disliked,
-      restaurantChoice,
-      current: choices[currentIndex],
-      recommandation,
-      isNextChoiceUsed,
-      left: choices.length - currentIndex,
-    });
-  };
-
-  const addLiked = (resto: RestoBusiness) => {
-    handleIndex();
-    setLiked((prevState) => [...prevState, resto]);
-  };
-
-  const addDisliked = (resto: RestoBusiness) => {
-    handleIndex();
-    setDisliked((prevState) => [...prevState, resto]);
+    if (type === "DISLIKE") {
+      setDisliked((disliked) => [...disliked, current]);
+    }
+    if (choices.length === 1) {
+      findRecommandation();
+    }
   };
 
   const reset = () => {
     setLiked([]);
     setDisliked([]);
     setRecommandation(undefined);
-    setCurrentIndex(0);
+    setRestaurantChoice(undefined);
     setIsNextChoiceUsed(false);
   };
 
   const resetChoices = () => {
     reset();
     setChoices([]);
+    void router.push("/app");
   };
 
   const nextChoice = () => {
@@ -137,20 +124,10 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
   const handleRestaurantSelection = () => {
     if (!recommandation) return;
     setRestaurantChoice(recommandation);
-    void router.push("/restaurant");
+    void router.push("/app/restaurant");
   };
 
-  useEffect(() => {
-    console.log(value?.choices);
-    setLiked(value?.liked || []);
-    setDisliked(value?.disliked || []);
-    setRecommandation(value?.recommandation);
-    setRestaurantChoice(value?.restaurantChoice);
-    setChoices(value?.choices || []);
-  }, [value]);
-
   const handleChoices = (choices: RestoBusiness[]) => {
-    console.log("choices", choices[0], choices.length);
     if (choices.length === 0) {
       return;
     } else if (choices.length === 1) {
@@ -165,18 +142,16 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
     <Results.Provider
       value={{
         choices,
+        findRecommandation,
         handleChoices,
         restaurantChoice,
-        addLiked,
-        addDisliked,
         isNextChoiceUsed,
         handleRestaurantSelection,
+        handleLike,
         liked,
         reset,
-        left: choices.length - currentIndex,
         nextChoice,
         disliked,
-        current: choices[currentIndex],
         recommandation,
         resetChoices,
       }}

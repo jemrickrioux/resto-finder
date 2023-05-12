@@ -4,47 +4,32 @@ import Head from "next/head";
 import { Finder } from "~/components/Finder";
 import { SkeletonFinder } from "~/components/SkeletonFinder";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  ResultsBusinessCard,
-  DetailedBusinessCard,
-  TinderBusinessCard,
-} from "~/components/MainBusinessCard";
+
 import { Results } from "~/context/resultsContext";
-import { ArrowPathRoundedSquareIcon } from "@heroicons/react/24/solid";
 import { signIn, useSession } from "next-auth/react";
 
 import { Modal } from "~/components/Modal";
-import { Menu } from "~/components/Menu";
-import { UserBadge } from "~/components/UserBadge";
-import LocationContext, { LocationData } from "~/context/locationContext";
+
 import ReactGA from "react-ga4";
-import { BaseLayout } from "~/layouts/BaseLayout";
-import { LocationIndicator } from "~/components/LocationIndicator";
+import dynamic from "next/dynamic";
 import { AppLayout } from "~/layouts/AppLayout";
 
+import { Button } from "~/components/Button";
+import { LocationData } from "~/context/locationContext";
+import { useRouter } from "next/router";
+import {
+  DownloadingRounded,
+  HourglassBottom,
+  LoopRounded,
+} from "@mui/icons-material";
+import { Loading } from "~/components/Loading";
+import { useRedirects } from "~/hooks/useRedirects";
+
 const Index: NextPage = () => {
-  const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const {
-    nextChoice,
-    choices,
-    current,
-    recommandation,
-    isNextChoiceUsed,
-    resetChoices,
-    reset,
-    left,
-  } = useContext(Results);
+  const { choices, recommandation, resetChoices } = useContext(Results);
 
-  const distance = useContext(LocationData);
-
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/app",
-      title: "App",
-    });
-  });
+  useRedirects();
 
   return (
     <AppLayout
@@ -61,8 +46,17 @@ const Index: NextPage = () => {
             }
           >
             <div className={"w-full"}>
-              {distance.loading && <SkeletonFinder />}
-              {!distance.loading && choices.length === 0 && <Finder />}
+              {choices.length !== 0 && !recommandation && <Loading />}
+              {choices.length === 0 && <Finder />}
+              {choices.length !== 0 && recommandation && (
+                <div className={"flex flex-col items-center"}>
+                  <Button
+                    text={"Je veux recommencer"}
+                    size={"sm"}
+                    action={resetChoices}
+                  />
+                </div>
+              )}
             </div>
           </section>
         </div>

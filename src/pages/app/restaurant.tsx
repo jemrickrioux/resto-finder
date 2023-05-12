@@ -8,29 +8,12 @@ import ReactGA from "react-ga4";
 import { DetailedBusinessCard } from "~/components/MainBusinessCard";
 import { Button } from "~/components/Button";
 import { AppLayout } from "~/layouts/AppLayout";
+import { useRedirects } from "~/hooks/useRedirects";
 
 const Restaurant: NextPage = () => {
-  const { data: session } = useSession();
-  const {
-    nextChoice,
-    choices,
-    current,
-    recommandation,
-    isNextChoiceUsed,
-    restaurantChoice,
-    resetChoices,
-    reset,
-  } = useContext(Results);
+  const { restaurantChoice } = useContext(Results);
 
-  const distance = useContext(LocationData);
-
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/app",
-      title: "App",
-    });
-  });
+  useRedirects();
 
   return (
     <AppLayout
@@ -38,9 +21,24 @@ const Restaurant: NextPage = () => {
       description={"Trouves ton lunch!"}
     >
       <div className={"flex w-full flex-col"}>
+        <h2
+          className={
+            "mb-4 self-start font-anek text-2xl font-medium uppercase text-primary"
+          }
+        >
+          {"C'est là que notre aventure se termine comrad..."}
+        </h2>
+        <p
+          className={
+            "mb-4 self-start text-left font-anek text-xs font-light text-gray-100"
+          }
+        >
+          Merci pour tout!
+        </p>
         {restaurantChoice && (
           <DetailedBusinessCard business={restaurantChoice} />
         )}
+
         {!restaurantChoice && (
           <div className={"flex flex-col space-y-2"}>
             <h1
