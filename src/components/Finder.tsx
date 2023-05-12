@@ -22,7 +22,9 @@ import {
 import { Transition } from "@headlessui/react";
 import { FieldGroup, Label } from "~/components/form/FormItems";
 import {
+  DEFAULT_DISTANCE_SELECT_VALUE,
   DEFAULT_KEYWORD_SELECT_VALUE,
+  DEFAULT_PRICE_SELECT_VALUE,
   DISTANCE_SELECT_OPTIONS,
   KEYWORD_SELECT_OPTIONS,
   PRICE_SELECT_OPTIONS,
@@ -60,8 +62,8 @@ export const Finder = () => {
       <Formik
         initialValues={{
           location: "",
-          priceLevel: PRICE_SELECT_OPTIONS[2]!,
-          distance: DISTANCE_SELECT_OPTIONS[0]!,
+          priceLevel: DEFAULT_PRICE_SELECT_VALUE!,
+          distance: DEFAULT_DISTANCE_SELECT_VALUE!,
           coordinates: {
             latitude: coordinates.lat || 0,
             longitude: coordinates.lng || 0,

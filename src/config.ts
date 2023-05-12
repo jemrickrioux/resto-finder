@@ -28,3 +28,5 @@ export const DEFAULT_KEYWORD_SELECT_VALUE = {
   label: "Non ça va aller. merci.",
   value: "",
 };
+export const DEFAULT_DISTANCE_SELECT_VALUE = DISTANCE_SELECT_OPTIONS[1];
+export const DEFAULT_PRICE_SELECT_VALUE = PRICE_SELECT_OPTIONS[2];
