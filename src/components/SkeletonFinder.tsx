@@ -1,18 +1,5 @@
 import * as React from "react";
-import { Formik, Field, Form, FormikHelpers, useFormikContext } from "formik";
 import { Button } from "~/components/Button";
-import { api } from "~/utils/api";
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useContext,
-  useEffect,
-} from "react";
-import * as Yup from "yup";
-
-import { YelpData } from "~/context/resultsContext";
-import { useRouter } from "next/router";
 import { ToggleInput } from "~/components/form/ToggleInput";
 
 export const SkeletonFinder = () => {

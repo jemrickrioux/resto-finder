@@ -1,22 +1,12 @@
 import { type NextPage } from "next";
-import Head from "next/head";
 import { Button } from "~/components/Button";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
-import ReactGA from "react-ga4";
 import { BaseLayout } from "~/layouts/BaseLayout";
 import Link from "next/link";
-import { session } from "next-auth/core/routes";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/",
-      title: "Landing Page",
-    });
-  });
 
   return (
     <BaseLayout title={"On Mange Quoi"} description={"Manges quoi?"}>
@@ -41,6 +31,12 @@ const Home: NextPage = () => {
               action={() =>
                 signIn("facebook", {
                   callbackUrl: "/app",
+                  success: () => {
+                    gtag("event", "sign_in", {
+                      event_category: "restaurants",
+                      event_label: "success",
+                    });
+                  },
                 })
               }
             ></Button>

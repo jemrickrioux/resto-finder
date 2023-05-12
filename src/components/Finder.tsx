@@ -2,7 +2,7 @@ import * as React from "react";
 import { Formik, Field, Form, FormikHelpers, useFormikContext } from "formik";
 import { Button } from "~/components/Button";
 import { api } from "~/utils/api";
-import { Dispatch, SetStateAction, useContext } from "react";
+import { Dispatch, Fragment, SetStateAction, useContext } from "react";
 import * as Yup from "yup";
 import { DistanceSelect } from "~/components/form/DistanceSelect";
 import { KeywordSelect } from "~/components/form/KeywordSelect";
@@ -11,45 +11,47 @@ import { ToggleInput } from "~/components/form/ToggleInput";
 import { useSession } from "next-auth/react";
 import { LocationData } from "~/context/locationContext";
 
-import { YelpData } from "~/context/resultsContext";
+import { Results } from "~/context/resultsContext";
 import { GooglePlacesAutoComplete } from "~/components/form/GooglePlacesAutocomplete";
 import { FinderFormValues } from "~/types/types";
+import {
+  DeliveryDiningRounded,
+  SettingsApplicationsRounded,
+  TakeoutDiningRounded,
+} from "@mui/icons-material";
+import { Transition } from "@headlessui/react";
+import { FieldGroup, Label } from "~/components/form/FormItems";
+import {
+  DEFAULT_DISTANCE_SELECT_VALUE,
+  DEFAULT_KEYWORD_SELECT_VALUE,
+  DEFAULT_PRICE_SELECT_VALUE,
+  DISTANCE_SELECT_OPTIONS,
+  KEYWORD_SELECT_OPTIONS,
+  PRICE_SELECT_OPTIONS,
+} from "~/config";
+import { useRouter } from "next/router";
 
-const MyField = (props: any) => {
-  return <Field className={"bg-accent"} {...props} />;
-};
-
-export const Label = (props: any) => {
-  return <label className={"text-md text-primary md:text-xl"} {...props} />;
-};
-
-export const FieldGroup = (props: any) => {
-  return (
-    <div className={" mb-4 flex  flex-col items-start space-y-2"} {...props} />
-  );
-};
-
-export const Finder = ({
-  openModal,
-}: {
-  openModal: Dispatch<SetStateAction<boolean>>;
-}) => {
-  const { data: session } = useSession();
+export const Finder = () => {
   const getRestaurants = api.places.restaurant.useMutation();
   const [advanced, setAdvanced] = React.useState(false);
+  const [livraison, setLivraison] = React.useState(false);
+  const [error, setError] = React.useState<null | string>(null);
+  const [takeout, setTakeout] = React.useState(false);
   const distance = useContext(LocationData);
-  const { setData } = useContext(YelpData);
-  const [location, setLocation] = React.useState(
-    {} as FinderFormValues["coordinates"]
-  );
+  const { handleChoices } = useContext(Results);
   const { coordinates } = useContext(LocationData);
+
+  const router = useRouter();
 
   return (
     <div
       className={
-        "min-w-11/12 w-full rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:w-[800px]  md:px-10 md:py-10"
+        "mx-4 max-w-full rounded-lg bg-main px-4 py-4 text-primary md:mx-0 md:px-10 md:py-10"
       }
     >
+      {error && (
+        <p className={"text-primary"}>{error}. Veuillez modifier vos choix.</p>
+      )}
       <h2
         className={
           "bold py-6 text-left font-anek text-2xl font-bold uppercase text-primary md:text-4xl"
@@ -60,19 +62,13 @@ export const Finder = ({
       <Formik
         initialValues={{
           location: "",
-          priceLevel: {
-            value: 4,
-            label: "You decide | Go hard or go home!... wait..",
-          },
-          distance: { value: 10000, label: "10km | Allez!" },
+          priceLevel: DEFAULT_PRICE_SELECT_VALUE!,
+          distance: DEFAULT_DISTANCE_SELECT_VALUE!,
           coordinates: {
             latitude: coordinates.lat || 0,
             longitude: coordinates.lng || 0,
           },
-          keyword: {
-            value: "",
-            label: "C'est personnel en esti.",
-          },
+          keyword: DEFAULT_KEYWORD_SELECT_VALUE,
         }}
         validationSchema={Yup.object({
           location: Yup.string(),
@@ -94,33 +90,38 @@ export const Finder = ({
           { setSubmitting }: FormikHelpers<FinderFormValues>
         ) => {
           setSubmitting(true);
+          gtag("event", "begin_search", {
+            event_category: "restaurants",
+            event_label: `PL${values.priceLevel.value}KW${
+              values.keyword.value
+            }D${values.distance.value}T${takeout ? "O" : "N"}L${
+              livraison ? "O" : "N"
+            } `,
+          });
 
-          const payload =
-            coordinates.lng && coordinates.lat
-              ? {
-                  latitude: coordinates.lat,
-                  longitude: coordinates.lng,
-                  priceLevel: values.priceLevel.value,
-                  distance: values.distance.value,
-                  keyword: values.keyword.value,
-                }
-              : values.coordinates.latitude && values.coordinates.longitude
-              ? {
-                  latitude: values.coordinates.latitude,
-                  longitude: values.coordinates.longitude,
-                  priceLevel: values.priceLevel.value,
-                  distance: values.distance.value,
-                  keyword: values.keyword.value,
-                }
-              : {
-                  location: values.location,
-                  priceLevel: values.priceLevel.value,
-                  distance: values.distance.value,
-                  keyword: values.keyword.value,
-                };
+          const payload = {
+            latitude: coordinates.lat!,
+            longitude: coordinates.lng!,
+            priceLevel: values.priceLevel.value,
+            distance: values.distance.value,
+            keyword: values.keyword.value,
+            takeout,
+            livraison,
+          };
           const restaurantData = await getRestaurants.mutateAsync(payload);
-          setData(restaurantData);
-          setSubmitting(false);
+
+          if (restaurantData.length === 0) {
+            gtag("event", "end_search", {
+              event_category: "restaurants",
+              event_label: "no_results",
+            });
+            setError("Aucun résultat disponible");
+          } else {
+            handleChoices(restaurantData);
+            setSubmitting(false);
+            setError(null);
+            void router.push("/app/tinder");
+          }
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
@@ -130,61 +131,51 @@ export const Finder = ({
               <GooglePlacesAutoComplete />
             </FieldGroup>
           )}
-          <div
-            className={`flex space-x-2 ${
-              !advanced ? "text-gray-200" : "text-primary"
-            }`}
-          >
-            <ToggleInput handler={setAdvanced} value={advanced} />
-            <p>{"Plus d'options"}</p>
-          </div>
 
-          {advanced && (
-            <>
-              <FieldGroup>
-                <Label htmlFor="priceLevel">
-                  {"Tu met combien sur la table?"}
-                </Label>
-                <PriceLevelSelect
-                  choices={[
-                    { value: 1, label: "Pas gros | J'suis cheap en est!" },
-                    { value: 2, label: "Un peu | Je suis cheap mais pas trop" },
-                    { value: 3, label: "Correct | Je suis capable" },
-                    {
-                      value: 4,
-                      label: "You decide | Go hard or go home!... wait..",
-                    },
-                  ]}
-                />
-              </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor="distance">
-                  {"Quel rayon on utilises pour la recherche?"}
-                </Label>
-                <DistanceSelect
-                  choices={[
-                    { value: 5000, label: "5km | Close stuff please" },
-                    { value: 10000, label: "10km | Allez!" },
-                    { value: 15000, label: "15km | At this point." },
-                    { value: 25000, label: "25km | Je suis fucking désespéré" },
-                  ]}
-                />
-              </FieldGroup>
-              <FieldGroup>
-                <Label htmlFor="distance">
-                  {"C'est quoi ton indispensable?"}
-                </Label>
-                <KeywordSelect
-                  choices={[
-                    { value: "bière", label: "Je veux de la broue" },
-                    { value: "vin", label: "Je veux du vin" },
-                    { value: "fast food", label: "D'la junk svp" },
-                    { value: "poulet", label: "Poula!" },
-                  ]}
-                />
-              </FieldGroup>
-            </>
-          )}
+          <ToggleInput
+            Icon={TakeoutDiningRounded}
+            value={takeout}
+            handler={setTakeout}
+            label={"Takeout"}
+          />
+          <ToggleInput
+            Icon={DeliveryDiningRounded}
+            handler={setLivraison}
+            value={livraison}
+            label={"Livraison"}
+          />
+          <ToggleInput
+            Icon={SettingsApplicationsRounded}
+            handler={setAdvanced}
+            value={advanced}
+            label={"Plus d'options"}
+          />
+          <Transition
+            as={"div"}
+            show={advanced}
+            enter="transform transition duration-[400ms]"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transform duration-200 transition ease-in-out"
+            leaveFrom="opacity-100  "
+            leaveTo="opacity-0  "
+            className={"flex max-w-full flex-col items-start space-y-2"}
+          >
+            <FieldGroup>
+              <Label htmlFor="priceLevel">{"C'est quoi ton budget?"}</Label>
+              <PriceLevelSelect choices={PRICE_SELECT_OPTIONS} />
+            </FieldGroup>
+            <FieldGroup>
+              <Label htmlFor="distance">
+                {"Quel rayon (en km) on utilises pour la recherche?"}
+              </Label>
+              <DistanceSelect choices={DISTANCE_SELECT_OPTIONS} />
+            </FieldGroup>
+            <FieldGroup>
+              <Label htmlFor="distance">{"As-tu une demande spéciale?"}</Label>
+              <KeywordSelect choices={KEYWORD_SELECT_OPTIONS} />
+            </FieldGroup>
+          </Transition>
           <div className={"py-8"}>
             <Button text={"Go"} size={"sm"} submit />
           </div>

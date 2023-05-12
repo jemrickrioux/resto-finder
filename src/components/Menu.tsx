@@ -24,7 +24,7 @@ export function Menu(props: { children: ReactNode; disabled: boolean }) {
       <HeadlessMenu.Button disabled={props.disabled}>
         {props.children}
       </HeadlessMenu.Button>
-      <HeadlessMenu.Items className={"absolute w-full px-4 py-4"}>
+      <HeadlessMenu.Items className={"absolute w-max px-4 py-4"}>
         {links.map((link, index) => (
           /* Use the `active` state to conditionally style the active item. */
           <HeadlessMenu.Item key={link.href} as={Fragment}>
