@@ -22,6 +22,7 @@ export const useRedirects = () => {
     if (restaurantChoice !== undefined) {
       pushIfNotCurrent(router, "/app/restaurant");
     } else if (recommandation !== undefined) {
+      console.log("recommandation", recommandation);
       pushIfNotCurrent(router, "/app/results");
     } else if (totalLength > 1) {
       pushIfNotCurrent(router, "/app/tinder");

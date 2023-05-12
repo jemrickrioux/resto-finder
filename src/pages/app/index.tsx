@@ -39,13 +39,13 @@ const Index: NextPage = () => {
       <>
         <Modal isOpen={isModalOpen} setIsOpen={setIsModalOpen}></Modal>
 
-        <div className=" flex h-full w-full flex-col">
+        <div className=" flex  flex-col ">
           <section
             className={
-              "flex w-full flex-col items-center text-center md:w-[800px]"
+              "flex w-full flex-col items-center text-center md:w-[1000px]"
             }
           >
-            <div className={"w-full"}>
+            <div className={"flex w-full flex-col items-center"}>
               {choices.length !== 0 && !recommandation && <Loading />}
               {choices.length === 0 && <Finder />}
               {choices.length !== 0 && recommandation && (

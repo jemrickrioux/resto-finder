@@ -79,13 +79,14 @@ export const AppLayout = ({
       </Head>
       <div
         className={
-          "bg-hero flex h-screen w-full flex-col justify-start space-y-8 overflow-y-hidden bg-accent px-4 bg-hero-i-like-food"
+          "bg-hero flex h-screen w-full flex-col justify-center space-y-8 overflow-y-hidden bg-accent px-4 bg-hero-i-like-food md:items-center"
         }
       >
         {distance.error && <HelloBar message={distance.error} />}
         <AppBar />
-
-        {children}
+        <div className={"flex h-full flex-col items-center justify-center"}>
+          {children}
+        </div>
       </div>
     </>
   );

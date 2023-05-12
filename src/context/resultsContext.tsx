@@ -120,6 +120,8 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
   const resetChoices = () => {
     reset();
     setChoices([]);
+    setLiked([]);
+    setDisliked([]);
     void router.push("/app");
   };
 

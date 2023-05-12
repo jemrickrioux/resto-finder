@@ -41,6 +41,12 @@ const Home: NextPage = () => {
               action={() =>
                 signIn("facebook", {
                   callbackUrl: "/app",
+                  success: () => {
+                    gtag("event", "sign_in", {
+                      event_category: "restaurants",
+                      event_label: "success",
+                    });
+                  },
                 })
               }
             ></Button>

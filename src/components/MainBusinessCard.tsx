@@ -119,7 +119,7 @@ export const TinderBusinessCard = ({
   return (
     <div
       className={
-        "flex w-full justify-between rounded-lg bg-main px-4 py-4 text-primary md:px-8 "
+        "flex w-full justify-between space-x-4 rounded-lg bg-main px-4 py-4 text-primary md:px-8"
       }
     >
       <div className={"flex flex-col justify-center"}>
@@ -134,7 +134,7 @@ export const TinderBusinessCard = ({
           }}
         />
       </div>
-      <div className={"flex w-full flex-col justify-center "}>
+      <div className={"flex w-full flex-col justify-center"}>
         <div
           className={
             "flex w-full items-center justify-center text-xl font-bold  md:text-3xl"
@@ -149,7 +149,11 @@ export const TinderBusinessCard = ({
         >
           {business.distance.toFixed(2)} km
         </div>
-        <div className={"flex w-full flex-col items-center justify-center"}>
+        <div
+          className={
+            "flex w-full flex-col items-center justify-center space-y-2"
+          }
+        >
           <IconList type={"star"} number={business.rating} Icon={StarIcon} />
           <IconList
             type={"price"}
@@ -187,8 +191,8 @@ const PrimaryAction = ({
       onClick={action}
       className={`col-span-2 flex items-center justify-center space-x-2 rounded-md border-2 border-primary bg-primary/80 px-2 py-2  text-main `}
     >
-      <Icon className={"h-4 w-4"}></Icon>
-      <h3 className={"text-md"}>{text}</h3>
+      <Icon className={"h-4 w-4 md:h-6 md:w-6"}></Icon>
+      <h3 className={"text-md md:text-xl"}>{text}</h3>
     </div>
   );
 };
@@ -207,8 +211,8 @@ const SecondaryAction = ({
       onClick={action}
       className={`flex cursor-pointer items-center justify-start space-x-2 px-2 py-1 text-gray-300 hover:text-primary`}
     >
-      <Icon className={"h-4 w-4"}></Icon>
-      <h3 className={"text-[10px]"}>{text}</h3>
+      <Icon className={"h-4 w-4 md:h-6 md:w-6"}></Icon>
+      <h3 className={"text-[10px] md:text-xl"}>{text}</h3>
     </div>
   );
 };
@@ -265,7 +269,7 @@ export const ResultsBusinessCard = ({
         </div>
         <div
           className={
-            "bold flex w-full flex-col justify-between space-y-2 px-6 py-4 text-left font-anek md:flex-row md:space-y-0"
+            "bold flex w-full flex-col justify-between space-y-2 px-6 py-4 text-left font-anek "
           }
         >
           <div className={"mb-4 flex flex-col space-y-2"}>
@@ -289,7 +293,7 @@ export const ResultsBusinessCard = ({
           <div className={""}>
             <PrimaryAction
               action={() => {
-                handleRestaurantSelection;
+                handleRestaurantSelection();
                 gtag("event", "choose", {
                   event_category: "restaurants",
                   event_label: business.name,
@@ -328,7 +332,7 @@ export const ResultsBusinessCard = ({
               event_category: "restaurants",
               event_label: business.name,
             });
-            nextChoice();
+            resetChoices();
           }}
           text={"Recommencer"}
           Icon={RestartAltRounded}
@@ -365,7 +369,7 @@ export const DetailedBusinessCard = ({
     <>
       <div
         className={
-          "rounded-lg border-2 border-main bg-main font-anek text-primary text-primary"
+          "rounded-lg border-2 border-main bg-main font-anek text-primary text-primary md:w-max"
         }
       >
         <img
