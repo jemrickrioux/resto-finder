@@ -5,9 +5,7 @@ import { HelloBar } from "~/components/HelloBar";
 import { Menu } from "~/components/Menu";
 import { UserBadge } from "~/components/UserBadge";
 import { signIn, useSession } from "next-auth/react";
-import ReactGA from "react-ga4";
 import { Results } from "~/context/resultsContext";
-import { Button } from "~/components/Button";
 
 const AppBar = () => {
   const { data: session } = useSession();
@@ -61,13 +59,6 @@ export const AppLayout = ({
   description: string;
   children: React.ReactNode;
 }) => {
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/app",
-      title,
-    });
-  }, []);
   const distance = useContext(LocationData);
   const results = useContext(Results);
 

@@ -5,10 +5,6 @@ import ResultsContext from "~/context/resultsContext";
 
 import { api } from "~/utils/api";
 
-import ReactGA from "react-ga4";
-
-ReactGA.initialize(process.env.NEXT_PUBLIC_GA4_ID!);
-
 import "~/styles/globals.css";
 import LocationContext from "~/context/locationContext";
 import React from "react";

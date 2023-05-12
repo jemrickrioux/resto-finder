@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import Head from "next/head";
 import { LocationData } from "~/context/locationContext";
 import { HelloBar } from "~/components/HelloBar";
-import ReactGA from "react-ga4";
 
 export const BaseLayout = ({
   title,
@@ -14,13 +13,7 @@ export const BaseLayout = ({
   children: React.ReactNode;
 }) => {
   const { error } = useContext(LocationData);
-  useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: "/index",
-      title,
-    });
-  }, []);
+
   return (
     <>
       <Head>
