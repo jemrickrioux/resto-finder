@@ -16,6 +16,7 @@ import { calculateDistance } from "~/utils/distance";
 import React from "react";
 import Bugsnag from "@bugsnag/js";
 import BugsnagPluginReact from "@bugsnag/plugin-react";
+import GoogleAnalytics from "~/components/GoogleAnalytics";
 
 Bugsnag.start({
   apiKey: process.env.NEXT_PUBLIC_BUGSNAG_API_KEY!,
@@ -32,6 +33,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <SessionProvider session={session}>
         <LocationContext>
           <ResultsContext>
+            <GoogleAnalytics />
             <Component {...pageProps} />
           </ResultsContext>
         </LocationContext>
