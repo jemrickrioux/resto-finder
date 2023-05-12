@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { RestoBusiness } from "~/types/types";
 import _ from "lodash";
-import { router } from "next/client";
 import { useRouter } from "next/router";
 import useLocalStorage from "~/hooks/useLocalStorage";
 
@@ -92,9 +91,17 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
 
     setChoices((choices) => choices.slice(1));
     if (type === "LIKE") {
+      gtag("event", "like", {
+        event_category: "restaurants",
+        event_label: current.name,
+      });
       setLiked((liked) => [...liked, current]);
     }
     if (type === "DISLIKE") {
+      gtag("event", "dislike", {
+        event_category: "restaurants",
+        event_label: current.name,
+      });
       setDisliked((disliked) => [...disliked, current]);
     }
     if (choices.length === 1) {
@@ -118,6 +125,7 @@ const ResultsContext = (props: { children: React.ReactNode }) => {
 
   const nextChoice = () => {
     findRecommandation();
+    setRestaurantChoice(undefined);
     setIsNextChoiceUsed(true);
   };
 

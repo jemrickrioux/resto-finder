@@ -53,7 +53,7 @@ const Tinder: NextPage = () => {
             <TinderBusinessCard business={choices[0]} />
           </>
         )}
-        {choices.length === 0 && !recommandation && <Loading />}
+        {!choices[0] && !recommandation && choices.length > 0 && <Loading />}
       </div>
     </AppLayout>
   );

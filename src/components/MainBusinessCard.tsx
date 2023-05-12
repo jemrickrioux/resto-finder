@@ -123,7 +123,16 @@ export const TinderBusinessCard = ({
       }
     >
       <div className={"flex flex-col justify-center"}>
-        <TinderLikeIcon type={"DISLIKE"} action={() => handleLike("DISLIKE")} />
+        <TinderLikeIcon
+          type={"DISLIKE"}
+          action={() => {
+            gtag("event", "dislike", {
+              event_category: "restaurants",
+              event_label: business.name,
+            });
+            handleLike("DISLIKE");
+          }}
+        />
       </div>
       <div className={"flex w-full flex-col justify-center "}>
         <div
@@ -150,7 +159,16 @@ export const TinderBusinessCard = ({
         </div>
       </div>
       <div className={"flex flex-col justify-center"}>
-        <TinderLikeIcon type={"LIKE"} action={() => handleLike("LIKE")} />
+        <TinderLikeIcon
+          type={"LIKE"}
+          action={() => {
+            gtag("event", "dislike", {
+              event_category: "restaurants",
+              event_label: business.name,
+            });
+            handleLike("LIKE");
+          }}
+        />
       </div>
     </div>
   );
@@ -270,7 +288,13 @@ export const ResultsBusinessCard = ({
           </div>
           <div className={""}>
             <PrimaryAction
-              action={handleRestaurantSelection}
+              action={() => {
+                handleRestaurantSelection;
+                gtag("event", "choose", {
+                  event_category: "restaurants",
+                  event_label: business.name,
+                });
+              }}
               text={"VOILÀ. Je choisis ça"}
               Icon={CheckIcon}
             />
@@ -289,11 +313,23 @@ export const ResultsBusinessCard = ({
           <SecondaryAction
             text={"Donne moi 1 choix de plus. pls"}
             Icon={PlusOneRounded}
-            action={nextChoice}
+            action={() => {
+              gtag("event", "next", {
+                event_category: "restaurants",
+                event_label: business.name,
+              });
+              nextChoice();
+            }}
           />
         )}
         <SecondaryAction
-          action={resetChoices}
+          action={() => {
+            gtag("event", "recommencer", {
+              event_category: "restaurants",
+              event_label: business.name,
+            });
+            nextChoice();
+          }}
           text={"Recommencer"}
           Icon={RestartAltRounded}
         />
@@ -393,13 +429,30 @@ export const DetailedBusinessCard = ({
               <div
                 className={"items center flex w-full space-x-2 md:justify-end"}
               >
-                <a target={"__blank__"} href={details.data.website}>
+                <a
+                  target={"__blank__"}
+                  onClick={() =>
+                    gtag("event", "visit_website", {
+                      event_category: "restaurants",
+                      event_label: business.name,
+                    })
+                  }
+                  href={details.data.website}
+                >
                   <LinkIcon
                     className={"h-8 w-8 cursor-pointer hover:text-secondary"}
                   ></LinkIcon>
                 </a>
                 {details.data.phone && (
-                  <a href={`tel:${details.data.phone}`}>
+                  <a
+                    href={`tel:${details.data.phone}`}
+                    onClick={() =>
+                      gtag("event", "call", {
+                        event_category: "restaurants",
+                        event_label: business.name,
+                      })
+                    }
+                  >
                     <PhoneIcon
                       className={"h-8 w-8 cursor-pointer hover:text-secondary"}
                     ></PhoneIcon>
@@ -415,11 +468,23 @@ export const DetailedBusinessCard = ({
           <SecondaryAction
             text={"Donne moi 1 choix de plus. pls"}
             Icon={PlusOneRounded}
-            action={nextChoice}
+            action={() => {
+              gtag("event", "next", {
+                event_category: "restaurants",
+                event_label: business.name,
+              });
+              nextChoice();
+            }}
           />
         )}
         <SecondaryAction
-          action={resetChoices}
+          action={() => {
+            gtag("event", "reset", {
+              event_category: "restaurants",
+              event_label: business.name,
+            });
+            resetChoices();
+          }}
           text={"Recommencer"}
           Icon={RestartAltRounded}
         />

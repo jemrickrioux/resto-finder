@@ -88,6 +88,14 @@ export const Finder = () => {
           { setSubmitting }: FormikHelpers<FinderFormValues>
         ) => {
           setSubmitting(true);
+          gtag("event", "begin_search", {
+            event_category: "restaurants",
+            event_label: `PL${values.priceLevel.value}KW${
+              values.keyword.value
+            }D${values.distance.value}T${takeout ? "O" : "N"}L${
+              livraison ? "O" : "N"
+            } `,
+          });
 
           const payload = {
             latitude: coordinates.lat!,
@@ -100,12 +108,18 @@ export const Finder = () => {
           };
           const restaurantData = await getRestaurants.mutateAsync(payload);
 
-          handleChoices(restaurantData);
-          setSubmitting(false);
-          setError(null);
-          void router.push("/app/tinder");
-          if (restaurantData.length === 0)
+          if (restaurantData.length === 0) {
+            gtag("event", "end_search", {
+              event_category: "restaurants",
+              event_label: "no_results",
+            });
             setError("Aucun résultat disponible");
+          } else {
+            handleChoices(restaurantData);
+            setSubmitting(false);
+            setError(null);
+            void router.push("/app/tinder");
+          }
         }}
       >
         <Form className={"flex w-full flex-col items-start space-y-2"}>
